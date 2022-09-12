@@ -20,6 +20,7 @@ urlpatterns = [
     # Your stuff: custom urls includes go here
     path("", include("cards.urls")),
     path("", include("cast.urls")),
+    path("", include("comments.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # API URLS
