@@ -1,3 +1,4 @@
+from cast.models import Person
 from django.db import models
 
 
@@ -16,11 +17,16 @@ class Card(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="cards")
     banner = models.CharField(max_length=200)
     is_available = models.BooleanField(default=False)
+    cast = models.ManyToManyField(Person, through="Membership")
+    genres = models.ManyToManyField(Genre)
 
 
-class Genres(models.Model):
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name="genres")
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name="genres")
+class Membership(models.Model):
+    character = models.CharField(max_length=200)
+    person = models.ForeignKey(
+        Person, on_delete=models.CASCADE, related_name="membership"
+    )
+    item = models.ForeignKey(Card, on_delete=models.PROTECT, related_name="membership")
 
 
 class Season(models.Model):
