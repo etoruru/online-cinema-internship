@@ -3,8 +3,8 @@ from rest_framework import serializers
 
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="user.name")
-    episode = serializers.ReadOnlyField(source="episode.episode_id")
+    user = serializers.ReadOnlyField(source="user.username")
+    episode = serializers.ReadOnlyField(source="episode.id")
 
     class Meta:
         model = Comment
@@ -12,8 +12,8 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class HistorySerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="user.name")
-    episode = serializers.ReadOnlyField(source="episode.episode_id")
+    user = serializers.ReadOnlyField(source="user.username")
+    episode = serializers.ReadOnlyField(source="episode.id")
 
     class Meta:
         model = History
@@ -21,7 +21,7 @@ class HistorySerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="user.name")
+    user = serializers.ReadOnlyField(source="user.username")
     card = serializers.ReadOnlyField(source="card.name")
 
     class Meta:
@@ -30,7 +30,7 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SubSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="user.name")
+    user = serializers.ReadOnlyField(source="user.username")
 
     class Meta:
         model = Subscription
