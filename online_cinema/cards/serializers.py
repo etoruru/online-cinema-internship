@@ -1,18 +1,30 @@
-from cards.models import Card, Episode, Season
+from cards.models import Card, Country, Episode, Genre, Membership, Season
 from rest_framework import serializers
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ["id", "name"]
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ["id", "name"]
+
+
+class MembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Membership
+        fields = ["character", "person", "item"]
 
 
 class CardSerializer(serializers.HyperlinkedModelSerializer):
     country = serializers.ReadOnlyField(source="country.name")
-    cast = serializers.HyperlinkedRelatedField(
-        many=True, view_name="membership-detail", read_only=True
-    )
-    genres = serializers.HyperlinkedRelatedField(
-        many=True, view_name="genre-detail", read_only=True
-    )
-    trailers = serializers.HyperlinkedRelatedField(
-        many=True, view_name="trailer-detail", read_only=True
-    )
+    cast = MembershipSerializer(source="cards", many=True, read_only=True)
+    genres = GenreSerializer(many=True, read_only=True)
+    # trailers = serializers.ReadOnlyField(source='trailer.id')
 
     class Meta:
         model = Card
@@ -27,7 +39,7 @@ class CardSerializer(serializers.HyperlinkedModelSerializer):
             "is_available",
             "genres",
             "cast",
-            "trailers",
+            # "trailers",
         ]
 
 
@@ -72,7 +84,7 @@ class EpisodeListSerializer(serializers.HyperlinkedModelSerializer):
 class SeasonSerializer(serializers.HyperlinkedModelSerializer):
     card = serializers.ReadOnlyField(source="card.name")
     episodes = serializers.HyperlinkedRelatedField(
-        many=True, view_name="episodes-detail", read_only=True
+        many=True, view_name="episode-detail", read_only=True
     )
 
     class Meta:
@@ -83,4 +95,4 @@ class SeasonSerializer(serializers.HyperlinkedModelSerializer):
 class SeasonListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Season
-        fileds = ["url", "id", "name"]
+        fields = ["url", "id", "name"]

@@ -5,9 +5,15 @@ from django.db import models
 class Country(models.Model):
     name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
 
 
 class Card(models.Model):
@@ -23,10 +29,8 @@ class Card(models.Model):
 
 class Membership(models.Model):
     character = models.CharField(max_length=200)
-    person = models.ForeignKey(
-        Person, on_delete=models.CASCADE, related_name="membership"
-    )
-    item = models.ForeignKey(Card, on_delete=models.PROTECT, related_name="membership")
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="cards")
+    item = models.ForeignKey(Card, on_delete=models.PROTECT, related_name="cards")
 
 
 class Season(models.Model):
@@ -42,5 +46,5 @@ class Episode(models.Model):
     name = models.CharField(max_length=200)
     preview = models.CharField(max_length=200)
     description = models.TextField()
-    viewers = models.IntegerField()
+    viewers = models.IntegerField(default=0)
     updated_to = models.DateTimeField()
