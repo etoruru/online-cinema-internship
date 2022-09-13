@@ -21,6 +21,7 @@ urlpatterns = [
     path("", include("cards.urls")),
     path("", include("cast.urls")),
     path("", include("comments.urls")),
+    path("", include("encoder.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # API URLS
