@@ -1,6 +1,8 @@
 from cast.models import Person
 from django.db import models
 
+CARD_TYPE = [("F", "film"), ("S", "series")]
+
 
 class Country(models.Model):
     name = models.CharField(max_length=100)
@@ -17,6 +19,7 @@ class Genre(models.Model):
 
 
 class Card(models.Model):
+    type = models.CharField(max_length=1, choices=CARD_TYPE)
     name = models.CharField(max_length=200)
     description = models.TextField()
     released_year = models.DateField()

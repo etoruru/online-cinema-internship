@@ -9,3 +9,15 @@ class PersonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Person
         fields = ["url", "id", "firstname", "lastname", "picture", "cards"]
+
+
+class PersonListSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Person
+        fields = ["url", "id"]
+
+
+class PersonCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        fields = ["firstname", "lastname", "picture", "cards"]

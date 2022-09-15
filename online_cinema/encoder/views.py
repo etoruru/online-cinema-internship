@@ -1,7 +1,12 @@
 from rest_framework import viewsets
 
 from .models import Trailer, Video
-from .serializers import TrailerSerializer, VideoSerializer
+from .serializers import (
+    TrailerListSerializer,
+    TrailerSerializer,
+    VideoListSerializer,
+    VideoSerializer,
+)
 
 
 class VideoViewSet(viewsets.ModelViewSet):
@@ -9,9 +14,12 @@ class VideoViewSet(viewsets.ModelViewSet):
     serializer_class = VideoSerializer
 
     def perform_create(self, serializer):
-        serializer.save(
-            created_by=self.request.user, item=self.request.data["episode_id"]
-        )
+        serializer.save(created_by=self.request.user, item=self.request.data["episode"])
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return VideoListSerializer
+        return VideoSerializer
 
 
 class TrailerViewSet(viewsets.ModelViewSet):
@@ -20,5 +28,10 @@ class TrailerViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(
-            card=self.request.data["card_id"], video=self.request.data["video_id"]
+            card=self.request.data["card"], video=self.request.data["video"]
         )
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return TrailerListSerializer
+        return TrailerSerializer

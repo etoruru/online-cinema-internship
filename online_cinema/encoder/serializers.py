@@ -22,6 +22,26 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
+class VideoListSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Video
+        fields = ["url", "id"]
+
+
+class VideoCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = [
+            "filename",
+            "filepath",
+            "created_at",
+            "status",
+            "resolution",
+            "created_by",
+            "item",
+        ]
+
+
 class TrailerSerializer(serializers.HyperlinkedModelSerializer):
     card = serializers.ReadOnlyField(source="card.name")
     video = serializers.HyperlinkedRelatedField(
@@ -31,3 +51,15 @@ class TrailerSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Trailer
         fields = ["url", "id", "card", "video"]
+
+
+class TrailerListSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Trailer
+        fields = ["url", "id"]
+
+
+class TrailerCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trailer
+        fields = ["card", "video"]

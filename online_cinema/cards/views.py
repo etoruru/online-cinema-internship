@@ -1,13 +1,16 @@
-from cards.models import Card, Episode, Season
-from cards.serializers import (
+from rest_framework import viewsets
+
+from .models import Card, Episode, Season
+from .serializers import (
+    CardCreateSerializer,
     CardListSerializer,
     CardSerializer,
+    EpisodeCreateSerializer,
     EpisodeListSerializer,
     EpisodeSerializer,
     SeasonListSerializer,
     SeasonSerializer,
 )
-from rest_framework import viewsets
 
 
 class CardViewSet(viewsets.ModelViewSet):
@@ -17,7 +20,14 @@ class CardViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return CardListSerializer
+        elif self.action == "create":
+            return CardCreateSerializer
         return CardSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(
+            country=self.request.data["country"], genres=self.request.data["genres"]
+        )
 
 
 class SeasonViewSet(viewsets.ModelViewSet):
@@ -37,4 +47,9 @@ class EpisodeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return EpisodeListSerializer
+        elif self.action == "create":
+            return EpisodeCreateSerializer
         return EpisodeSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(season=self.request.data["season"])
