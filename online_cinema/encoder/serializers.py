@@ -22,15 +22,13 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class VideoListSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Video
+class VideoListSerializer(VideoSerializer):
+    class Meta(VideoSerializer.Meta):
         fields = ["url", "id"]
 
 
-class VideoCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Video
+class VideoCreateSerializer(VideoSerializer):
+    class Meta(VideoSerializer.Meta):
         fields = [
             "filename",
             "filepath",
@@ -53,13 +51,11 @@ class TrailerSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["url", "id", "card", "video"]
 
 
-class TrailerListSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Trailer
+class TrailerListSerializer(VideoSerializer):
+    class Meta(VideoSerializer.Meta):
         fields = ["url", "id"]
 
 
-class TrailerCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Trailer
+class TrailerCreateSerializer(VideoSerializer):
+    class Meta(VideoSerializer.Meta):
         fields = ["card", "video"]
