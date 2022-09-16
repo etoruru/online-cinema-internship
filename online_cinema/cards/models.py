@@ -1,5 +1,6 @@
 from cast.models import Person
 from django.db import models
+from django.utils import timezone
 
 CARD_TYPE = [("F", "film"), ("S", "series")]
 
@@ -32,8 +33,10 @@ class Card(models.Model):
 
 class Membership(models.Model):
     character = models.CharField(max_length=200)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="cards")
-    item = models.ForeignKey(Card, on_delete=models.PROTECT, related_name="cards")
+    person = models.ForeignKey(
+        Person, on_delete=models.CASCADE, related_name="character"
+    )
+    item = models.ForeignKey(Card, on_delete=models.PROTECT, related_name="character")
 
 
 class Season(models.Model):
@@ -45,9 +48,9 @@ class Episode(models.Model):
     season = models.ForeignKey(
         Season, on_delete=models.CASCADE, related_name="episodes"
     )
-    num = models.IntegerField()
+    num = models.IntegerField(default=1)
     name = models.CharField(max_length=200)
     preview = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(default="-")
     viewers = models.IntegerField(default=0)
-    updated_to = models.DateTimeField()
+    updated_to = models.DateTimeField(default=timezone.now)

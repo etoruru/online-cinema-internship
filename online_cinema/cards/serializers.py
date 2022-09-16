@@ -1,4 +1,5 @@
 from cards.models import Card, Country, Episode, Genre, Membership, Season
+from cast.models import Person
 from rest_framework import serializers
 
 
@@ -17,13 +18,25 @@ class CountrySerializer(serializers.ModelSerializer):
 class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
+        fields = ["character", "person", "item"]
+
+
+class MembershipCardSerializer(MembershipSerializer):
+    class Meta(MembershipSerializer.Meta):
         fields = ["character", "person"]
+
+
+class MembershipPersonSerializer(MembershipSerializer):
+    class Meta(MembershipSerializer.Meta):
+        exclude = ["person"]
+        fields = ["character", "item"]
 
 
 class CardSerializer(serializers.HyperlinkedModelSerializer):
     country = serializers.ReadOnlyField(source="country.name")
-    cast = MembershipSerializer(source="cards", many=True, read_only=True)
+    cast = MembershipCardSerializer(source="membership", many=True, read_only=True)
     genres = GenreSerializer(many=True, read_only=True)
+
     # trailers = serializers.ReadOnlyField(source='trailer.id')
 
     class Meta:
@@ -32,6 +45,7 @@ class CardSerializer(serializers.HyperlinkedModelSerializer):
             "url",
             "id",
             "name",
+            "type",
             "description",
             "released_year",
             "country",
@@ -43,10 +57,57 @@ class CardSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class CardListSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Card
+class CardListSerializer(CardSerializer):
+    class Meta(CardSerializer.Meta):
         fields = ["url", "id", "name"]
+
+
+class CardCreateSerializer(CardSerializer):
+    country = CountrySerializer()
+    cast = MembershipCardSerializer(many=True, source="character")
+    genres = GenreSerializer(many=True)
+
+    def create(self, validated_data):
+        cast = validated_data.pop("cast", [])
+        country_data = validated_data.pop("country")
+        country = Country.objects.get(**country_data)
+        genres = validated_data.pop("genres", [])
+        card = Card.objects.create(**validated_data, country=country)
+        for genre in genres:
+            card.genres.add(genre["id"])
+
+        for membership in cast:
+            person = Person.objects.filter(id=membership["person"])
+            membership["item"] = card
+            membership["person"] = person
+            Membership.objects.create(**membership)
+
+        # if card.type == "F":
+        #     season = Season.objects.create(name="1", card=card)
+        #     episode = Episode.objects.create(season=season)
+
+        return card
+
+
+class SeasonSerializer(serializers.HyperlinkedModelSerializer):
+    card = serializers.ReadOnlyField(source="card.id")
+    episodes = serializers.HyperlinkedRelatedField(
+        many=True, view_name="episode-detail", read_only=True
+    )
+
+    class Meta:
+        model = Season
+        fields = ["url", "id", "name", "card", "episodes"]
+
+
+class SeasonListSerializer(SeasonSerializer):
+    class Meta(SeasonSerializer.Meta):
+        fields = ["url", "id", "name"]
+
+
+class SeasonCreateSerializer(SeasonSerializer):
+    class Meta(SeasonSerializer.Meta):
+        fields = ["name", "card"]
 
 
 class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
@@ -75,49 +136,14 @@ class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class EpisodeListSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
+class EpisodeListSerializer(EpisodeSerializer):
+    class Meta(EpisodeSerializer.Meta):
         model = Episode
-        fields = ["url", "id", "num", "name"]
+        fields = ["url", "id"]
 
 
-class SeasonSerializer(serializers.HyperlinkedModelSerializer):
-    card = serializers.ReadOnlyField(source="card.id")
-    episodes = serializers.HyperlinkedRelatedField(
-        many=True, view_name="episode-detail", read_only=True
-    )
-
-    class Meta:
-        model = Season
-        fields = ["url", "id", "name", "card", "episodes"]
-
-
-class SeasonListSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Season
-        fields = ["url", "id", "name"]
-
-
-class SeasonCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Season
-        fields = ["name", "card"]
-
-
-class EpisodeCreateSerializer(serializers.ModelSerializer):
+class EpisodeCreateSerializer(EpisodeSerializer):
     season = SeasonCreateSerializer()
-
-    class Meta:
-        model = Episode
-        fields = [
-            "num",
-            "name",
-            "preview",
-            "description",
-            "viewers",
-            "updated_to",
-            "season",
-        ]
 
     def create(self, validated_data):
 
@@ -126,42 +152,3 @@ class EpisodeCreateSerializer(serializers.ModelSerializer):
 
         episode = Episode.objects.create(**validated_data)
         return episode
-
-
-class MembershipCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Membership
-        fields = ["character", "person"]
-
-
-class CardCreateSerializer(serializers.HyperlinkedModelSerializer):
-    country = CountrySerializer()
-    cast = MembershipCreateSerializer(many=True)
-    genres = GenreSerializer(many=True)
-
-    class Meta:
-        model = Card
-        fields = [
-            "name",
-            "type",
-            "description",
-            "released_year",
-            "country",
-            "banner",
-            "is_available",
-            "genres",
-            "cast",
-        ]
-
-    def create(self, validated_data):
-        cast = validated_data.pop("cast", [])
-        country_data = validated_data.pop("country")
-        country = Country.objects.get(**country_data)
-        genres = validated_data.pop("genres", [])
-        card = Card.objects.create(**validated_data, country=country)
-
-        card.genres.add(genres)
-        for membership in cast:
-            membership["item"] = card
-            Membership.objects.create(**membership)
-        return card
