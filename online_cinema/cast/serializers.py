@@ -4,20 +4,18 @@ from rest_framework import serializers
 
 
 class PersonSerializer(serializers.HyperlinkedModelSerializer):
-    cards = MembershipSerializer(many=True, read_only=True)
+    character = MembershipSerializer(many=True, read_only=True)
 
     class Meta:
         model = Person
-        fields = ["url", "id", "firstname", "lastname", "picture", "cards"]
+        fields = ["url", "id", "firstname", "lastname", "picture", "character"]
 
 
-class PersonListSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Person
+class PersonListSerializer(PersonSerializer):
+    class Meta(PersonSerializer.Meta):
         fields = ["url", "id"]
 
 
-class PersonCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Person
-        fields = ["firstname", "lastname", "picture", "cards"]
+class PersonCreateSerializer(PersonSerializer):
+    class Meta(PersonSerializer.Meta):
+        fields = ["firstname", "lastname", "picture"]
