@@ -1,4 +1,4 @@
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
 from users.permissions import HasGroupPermission
 
 from .models import Card, Episode, Season
@@ -21,7 +21,7 @@ class CardViewSet(viewsets.ModelViewSet):
     permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["moderator", "admin"],
-        "list": ["moderator", "viewer", "admin"],
+        "list": ["_Public"],
         "retrieve": ["_Public"],
         "partial_update": ["moderator", "admin"],
         "delete": ["admin"],
@@ -43,6 +43,14 @@ class CardViewSet(viewsets.ModelViewSet):
 class SeasonViewSet(viewsets.ModelViewSet):
     queryset = Season.objects.all()
     serializer_class = SeasonSerializer
+    permission_classes = [HasGroupPermission]
+    permission_groups = {
+        "create": ["moderator", "admin"],
+        "list": ["_Public"],
+        "retrieve": ["_Public"],
+        "partial_update": ["moderator", "admin"],
+        "delete": ["admin"],
+    }
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -55,6 +63,14 @@ class SeasonViewSet(viewsets.ModelViewSet):
 class EpisodeViewSet(viewsets.ModelViewSet):
     queryset = Episode.objects.all()
     serializer_class = EpisodeSerializer
+    permission_classes = [HasGroupPermission]
+    permission_groups = {
+        "create": ["moderator", "admin"],
+        "list": ["_Public"],
+        "retrieve": ["_Public"],
+        "partial_update": ["moderator", "admin"],
+        "delete": ["admin", "moderator"],
+    }
 
     def get_serializer_class(self):
         if self.action == "list":

@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from users.permissions import HasGroupPermission
 
 from .models import Bookmark, Comment, History, Subscription
 from .serializers import (
@@ -20,6 +21,14 @@ from .serializers import (
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = [HasGroupPermission]
+    permission_groups = {
+        "create": ["_Public"],
+        "list": ["_Public"],
+        "retrieve": ["_Public"],
+        "partial_update": ["_Public"],
+        "delete": ["_Public"],
+    }
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, episode_id=self.request.data["episode"])
@@ -35,6 +44,13 @@ class CommentViewSet(viewsets.ModelViewSet):
 class HistoryViewSet(viewsets.ModelViewSet):
     queryset = History.objects.all()
     serializer_class = HistorySerializer
+    permission_classes = [HasGroupPermission]
+    permission_groups = {
+        "create": ["_Public"],
+        "list": ["_Public"],
+        "retrieve": ["_Public"],
+        "delete": ["_Public"],
+    }
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, episode_id=self.request.data["episode"])
@@ -50,6 +66,13 @@ class HistoryViewSet(viewsets.ModelViewSet):
 class BookmarkViewSet(viewsets.ModelViewSet):
     queryset = Bookmark.objects.all()
     serializer_class = BookmarkSerializer
+    permission_classes = [HasGroupPermission]
+    permission_groups = {
+        "create": ["_Public"],
+        "list": ["_Public"],
+        "retrieve": ["_Public"],
+        "delete": ["_Public"],
+    }
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, card_id=self.request.data["card"])
@@ -65,6 +88,14 @@ class BookmarkViewSet(viewsets.ModelViewSet):
 class SubscriptionViewSet(viewsets.ModelViewSet):
     queryset = Subscription.objects.all()
     serializer_class = SubSerializer
+    permission_classes = [HasGroupPermission]
+    permission_groups = {
+        "create": ["_Public"],
+        "list": ["admin", "moderator"],
+        "retrieve": ["_Public"],
+        "partial_update": ["admin"],
+        "delete": ["admin"],
+    }
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
