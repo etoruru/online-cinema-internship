@@ -19,7 +19,7 @@ from .serializers import (
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
+    queryset = Comment.objects.select_related("user", "episode")
     serializer_class = CommentSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
@@ -42,7 +42,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class HistoryViewSet(viewsets.ModelViewSet):
-    queryset = History.objects.all()
+    queryset = History.objects.select_related("user", "episode")
     serializer_class = HistorySerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
@@ -64,7 +64,7 @@ class HistoryViewSet(viewsets.ModelViewSet):
 
 
 class BookmarkViewSet(viewsets.ModelViewSet):
-    queryset = Bookmark.objects.all()
+    queryset = Bookmark.objects.select_related("user", "card")
     serializer_class = BookmarkSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
@@ -86,7 +86,7 @@ class BookmarkViewSet(viewsets.ModelViewSet):
 
 
 class SubscriptionViewSet(viewsets.ModelViewSet):
-    queryset = Subscription.objects.all()
+    queryset = Subscription.objects.select_related("user")
     serializer_class = SubSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {

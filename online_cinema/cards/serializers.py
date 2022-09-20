@@ -16,33 +16,40 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class MembershipSerializer(serializers.ModelSerializer):
+    person = serializers.ReadOnlyField(source="person.id")
+    item = serializers.ReadOnlyField(source="item.id")
+
     class Meta:
         model = Membership
         fields = ["character", "person", "item"]
 
 
 class MembershipCardSerializer(MembershipSerializer):
+    person = None
+
     class Meta(MembershipSerializer.Meta):
         fields = ["character", "person"]
 
 
 class MembershipPersonSerializer(MembershipSerializer):
     class Meta(MembershipSerializer.Meta):
-        exclude = ["person"]
         fields = ["character", "item"]
 
 
-class CardSerializer(serializers.HyperlinkedModelSerializer):
-    country = serializers.ReadOnlyField(source="country.name")
-    cast = MembershipCardSerializer(source="membership", many=True, read_only=True)
-    genres = GenreSerializer(many=True, read_only=True)
+class CardSerializer(serializers.ModelSerializer):
+    # country = serializers.ReadOnlyField(source="country.name")
+    # cast = MembershipCardSerializer(source="character", many=True, read_only=True)
+    # genres = GenreSerializer(many=True, read_only=True)
 
     # trailers = serializers.ReadOnlyField(source='trailer.id')
+
+    def create(self, validated_data):
+        pass
 
     class Meta:
         model = Card
         fields = [
-            "url",
+            # "url",
             "id",
             "name",
             "type",
@@ -63,46 +70,70 @@ class CardListSerializer(CardSerializer):
 
 
 class CardCreateSerializer(CardSerializer):
-    country = CountrySerializer()
-    cast = MembershipCardSerializer(many=True, source="character")
-    genres = GenreSerializer(many=True)
+    country = None
+    cast = None
+    genres = None
+
+    class Meta(CardSerializer.Meta):
+
+        fields = [
+            # "url",
+            "id",
+            "name",
+            "type",
+            "description",
+            "released_year",
+            "country",
+            "banner",
+            "is_available",
+            "genres",
+            "cast",
+            # "trailers",
+        ]
 
     def create(self, validated_data):
-        cast = validated_data.pop("cast", [])
-        country_data = validated_data.pop("country")
-        country = Country.objects.get(**country_data)
-        genres = validated_data.pop("genres", [])
-        card = Card.objects.create(**validated_data, country=country)
-        for genre in genres:
-            card.genres.add(genre["id"])
+        super().create(validated_data)
 
+        cast = validated_data.pop("cast", [])
+        genres = validated_data.pop("genres", [])
+        country = Country.objects.get(pk=validated_data["country"])
+        validated_data["country"] = country
+        card = Card.objects.create(**validated_data)
+        for genre in genres:
+            card.genres.add(genre)
+
+        characters = []
         for membership in cast:
-            person = Person.objects.filter(id=membership["person"])
-            membership["item"] = card
-            membership["person"] = person
-            Membership.objects.create(**membership)
+            person = Person.objects.get(pk=membership["person"])
+            character = Membership(
+                person=person, item=card, character=membership["character"]
+            )
+            characters.append(character)
+        Membership.objects.bulk_create(characters)
 
         # if card.type == "F":
         #     season = Season.objects.create(name="1", card=card)
-        #     episode = Episode.objects.create(season=season)
-
+        #     Episode.objects.create(season=season)
+        # elif card.type == "S":
+        #     Season.objects.create(name="1", card=card)
         return card
 
+    def update(self, instance, validated_data):
+        pass
 
-class SeasonSerializer(serializers.HyperlinkedModelSerializer):
-    card = serializers.ReadOnlyField(source="card.id")
-    episodes = serializers.HyperlinkedRelatedField(
-        many=True, view_name="episode-detail", read_only=True
-    )
+
+class SeasonSerializer(serializers.ModelSerializer):
+    # card = serializers.ReadOnlyField(source="card.id")
+    episodes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Season
-        fields = ["url", "id", "name", "card", "episodes"]
+        fields = ["id", "name", "card", "episodes"]
 
 
 class SeasonListSerializer(SeasonSerializer):
     class Meta(SeasonSerializer.Meta):
-        fields = ["url", "id", "name"]
+        fields = ["id", "name"]
 
 
 class SeasonCreateSerializer(SeasonSerializer):
@@ -110,14 +141,10 @@ class SeasonCreateSerializer(SeasonSerializer):
         fields = ["name", "card"]
 
 
-class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
-    season = serializers.ReadOnlyField(source="season.id")
-    comments = serializers.HyperlinkedRelatedField(
-        many=True, view_name="comment-detail", read_only=True
-    )
-    videos = serializers.HyperlinkedRelatedField(
-        many=True, view_name="video-detail", read_only=True
-    )
+class EpisodeSerializer(serializers.ModelSerializer):
+    # season = serializers.ReadOnlyField(source="season.id")
+    comments = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    videos = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Episode
@@ -143,12 +170,15 @@ class EpisodeListSerializer(EpisodeSerializer):
 
 
 class EpisodeCreateSerializer(EpisodeSerializer):
-    season = SeasonCreateSerializer()
+    season = None
 
-    def create(self, validated_data):
-
-        season = Season.objects.get()
-        validated_data["season"] = season
-
-        episode = Episode.objects.create(**validated_data)
-        return episode
+    class Meta(EpisodeSerializer.Meta):
+        fields = [
+            "num",
+            "name",
+            "preview",
+            "description",
+            "viewers",
+            "updated_to",
+            "season",
+        ]

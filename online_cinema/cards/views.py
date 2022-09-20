@@ -1,14 +1,18 @@
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from users.permissions import HasGroupPermission
 
-from .models import Card, Episode, Season
+from .models import Card, Country, Episode, Genre, Membership, Season
 from .serializers import (
     CardCreateSerializer,
     CardListSerializer,
     CardSerializer,
+    CountrySerializer,
     EpisodeCreateSerializer,
     EpisodeListSerializer,
     EpisodeSerializer,
+    GenreSerializer,
+    MembershipSerializer,
     SeasonCreateSerializer,
     SeasonListSerializer,
     SeasonSerializer,
@@ -16,11 +20,12 @@ from .serializers import (
 
 
 class CardViewSet(viewsets.ModelViewSet):
-    queryset = Card.objects.all()
+    queryset = Card.objects.prefetch_related("genres", "cast").select_related("country")
     serializer_class = CardSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
-        "create": ["moderator", "admin"],
+        "create": ["_Public"],
+        # "create": ["moderator", "admin"],
         "list": ["_Public"],
         "retrieve": ["_Public"],
         "partial_update": ["moderator", "admin"],
@@ -36,12 +41,14 @@ class CardViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(
-            country=self.request.data["country"], genres=self.request.data["genres"]
+            country=self.request.data["country"],
+            genres=self.request.data["genres"],
+            cast=self.request.data["cast"],
         )
 
 
 class SeasonViewSet(viewsets.ModelViewSet):
-    queryset = Season.objects.all()
+    queryset = Season.objects.select_related("card")
     serializer_class = SeasonSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
@@ -61,11 +68,11 @@ class SeasonViewSet(viewsets.ModelViewSet):
 
 
 class EpisodeViewSet(viewsets.ModelViewSet):
-    queryset = Episode.objects.all()
+    queryset = Episode.objects.select_related("season")
     serializer_class = EpisodeSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
-        "create": ["moderator", "admin"],
+        "create": ["_Public"],
         "list": ["_Public"],
         "retrieve": ["_Public"],
         "partial_update": ["moderator", "admin"],
@@ -81,3 +88,22 @@ class EpisodeViewSet(viewsets.ModelViewSet):
 
     # def perform_create(self, serializer):
     #     serializer.save(season=self.request.data["season"])
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("name",)
+
+
+class CountryViewSet(viewsets.ModelViewSet):
+    queryset = Country.objects.all()
+    serializer_class = CountrySerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("name",)
+
+
+class MembershipViewSet(viewsets.ModelViewSet):
+    queryset = Membership.objects.all()
+    serializer_class = MembershipSerializer
