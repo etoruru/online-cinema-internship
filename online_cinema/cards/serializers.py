@@ -21,14 +21,14 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        fields = ["character", "person", "item"]
+        fields = ["id", "character", "person", "item"]
 
 
 class MembershipCardSerializer(MembershipSerializer):
     person = None
 
     class Meta(MembershipSerializer.Meta):
-        fields = ["character", "person"]
+        fields = ["id"]
 
 
 class MembershipPersonSerializer(MembershipSerializer):
@@ -38,7 +38,7 @@ class MembershipPersonSerializer(MembershipSerializer):
 
 class CardSerializer(serializers.ModelSerializer):
     # country = serializers.ReadOnlyField(source="country.name")
-    # cast = MembershipCardSerializer(source="character", many=True, read_only=True)
+    cast = MembershipSerializer(source="character", many=True, read_only=True)
     # genres = GenreSerializer(many=True, read_only=True)
 
     # trailers = serializers.ReadOnlyField(source='trailer.id')
@@ -110,12 +110,6 @@ class CardCreateSerializer(CardSerializer):
             )
             characters.append(character)
         Membership.objects.bulk_create(characters)
-
-        # if card.type == "F":
-        #     season = Season.objects.create(name="1", card=card)
-        #     Episode.objects.create(season=season)
-        # elif card.type == "S":
-        #     Season.objects.create(name="1", card=card)
         return card
 
     def update(self, instance, validated_data):
