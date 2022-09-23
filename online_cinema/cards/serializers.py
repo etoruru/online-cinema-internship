@@ -16,30 +16,13 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class MembershipSerializer(serializers.ModelSerializer):
-    person = serializers.ReadOnlyField(source="person.id")
-    item = serializers.ReadOnlyField(source="item.id")
-
     class Meta:
         model = Membership
         fields = ["id", "character", "person", "item"]
 
 
-class MembershipCardSerializer(MembershipSerializer):
-    person = None
-
-    class Meta(MembershipSerializer.Meta):
-        fields = ["id"]
-
-
-class MembershipPersonSerializer(MembershipSerializer):
-    class Meta(MembershipSerializer.Meta):
-        fields = ["character", "item"]
-
-
 class CardSerializer(serializers.ModelSerializer):
-    # country = serializers.ReadOnlyField(source="country.name")
     cast = MembershipSerializer(source="character", many=True, read_only=True)
-    # genres = GenreSerializer(many=True, read_only=True)
 
     # trailers = serializers.ReadOnlyField(source='trailer.id')
 
@@ -49,7 +32,6 @@ class CardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
         fields = [
-            # "url",
             "id",
             "name",
             "type",
@@ -77,8 +59,6 @@ class CardCreateSerializer(CardSerializer):
     class Meta(CardSerializer.Meta):
 
         fields = [
-            # "url",
-            "id",
             "name",
             "type",
             "description",
@@ -112,12 +92,8 @@ class CardCreateSerializer(CardSerializer):
         Membership.objects.bulk_create(characters)
         return card
 
-    def update(self, instance, validated_data):
-        pass
-
 
 class SeasonSerializer(serializers.ModelSerializer):
-    # card = serializers.ReadOnlyField(source="card.id")
     episodes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
@@ -136,7 +112,6 @@ class SeasonCreateSerializer(SeasonSerializer):
 
 
 class EpisodeSerializer(serializers.ModelSerializer):
-    # season = serializers.ReadOnlyField(source="season.id")
     comments = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     videos = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
@@ -159,7 +134,6 @@ class EpisodeSerializer(serializers.ModelSerializer):
 
 class EpisodeListSerializer(EpisodeSerializer):
     class Meta(EpisodeSerializer.Meta):
-        model = Episode
         fields = ["url", "id"]
 
 

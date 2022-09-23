@@ -1,8 +1,7 @@
 from cast.models import Person
 from django.db import models
 from django.utils import timezone
-
-CARD_TYPE = [("F", "film"), ("S", "series")]
+from django.utils.translation import gettext_lazy as _
 
 
 class Country(models.Model):
@@ -23,7 +22,11 @@ class Genre(models.Model):
 
 
 class Card(models.Model):
-    type = models.CharField(max_length=1, choices=CARD_TYPE)
+    class CardType(models.TextChoices):
+        FILM = "F", _("film")
+        SERIES = "S", _("series")
+
+    type = models.CharField(max_length=1, choices=CardType.choices)
     name = models.CharField(max_length=200)
     description = models.TextField()
     released_year = models.DateField()

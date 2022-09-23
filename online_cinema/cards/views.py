@@ -86,9 +86,6 @@ class EpisodeViewSet(viewsets.ModelViewSet):
             return EpisodeCreateSerializer
         return EpisodeSerializer
 
-    # def perform_create(self, serializer):
-    #     serializer.save(season=self.request.data["season"])
-
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
@@ -105,5 +102,5 @@ class CountryViewSet(viewsets.ModelViewSet):
 
 
 class MembershipViewSet(viewsets.ModelViewSet):
-    queryset = Membership.objects.all()
+    queryset = Membership.objects.prefetch_related("person", "item")
     serializer_class = MembershipSerializer
