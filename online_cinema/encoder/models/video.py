@@ -1,4 +1,3 @@
-from cards.models import Episode
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -18,7 +17,9 @@ class Video(models.Model):
     created_by = models.ForeignKey(
         base.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="videos"
     )
-    item = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name="videos")
+    item = models.ForeignKey(
+        "cards.Episode", on_delete=models.CASCADE, related_name="videos"
+    )
     created_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(
         choices=VideoStatus.choices, default=VideoStatus.LOADING, max_length=4

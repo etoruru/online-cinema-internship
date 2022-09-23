@@ -1,4 +1,3 @@
-from cards.models import Episode
 from django.db import models
 from django.utils import timezone
 
@@ -11,5 +10,5 @@ class History(models.Model):
         base.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="history"
     )
     episode = models.ForeignKey(
-        Episode, on_delete=models.CASCADE, related_name="history"
+        "cards.Episode", on_delete=models.CASCADE, related_name="history"
     )

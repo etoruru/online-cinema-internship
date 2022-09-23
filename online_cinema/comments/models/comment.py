@@ -1,4 +1,3 @@
-from cards.models import Episode
 from django.db import models
 from django.utils import timezone
 
@@ -12,5 +11,5 @@ class Comment(models.Model):
         base.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
     )
     episode = models.ForeignKey(
-        Episode, on_delete=models.CASCADE, related_name="comments"
+        "cards.Episode", on_delete=models.CASCADE, related_name="comments"
     )
