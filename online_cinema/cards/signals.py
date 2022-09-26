@@ -5,8 +5,9 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=Card)
 def cards_save_handle(sender, instance, created, **kwargs):
-    if instance.type == "F":
-        season = Season.objects.create(name="1", card=instance)
-        Episode.objects.create(season=season)
-    elif instance.type == "S":
-        Season.objects.create(name="1", card=instance)
+    if created:
+        if instance.type == "F":
+            season = Season.objects.create(name="1", card=instance)
+            Episode.objects.create(season=season)
+        elif instance.type == "S":
+            Season.objects.create(name="1", card=instance)
