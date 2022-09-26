@@ -24,11 +24,6 @@ class MembershipSerializer(serializers.ModelSerializer):
 class CardSerializer(serializers.ModelSerializer):
     cast = MembershipSerializer(source="character", many=True, read_only=True)
 
-    # trailers = serializers.ReadOnlyField(source='trailer.id')
-
-    def create(self, validated_data):
-        pass
-
     class Meta:
         model = Card
         fields = [
@@ -42,13 +37,12 @@ class CardSerializer(serializers.ModelSerializer):
             "is_available",
             "genres",
             "cast",
-            # "trailers",
         ]
 
 
 class CardListSerializer(CardSerializer):
     class Meta(CardSerializer.Meta):
-        fields = ["url", "id", "name"]
+        fields = ["id", "name"]
 
 
 class CardCreateSerializer(CardSerializer):
@@ -68,19 +62,17 @@ class CardCreateSerializer(CardSerializer):
             "is_available",
             "genres",
             "cast",
-            # "trailers",
         ]
 
     def create(self, validated_data):
-        super().create(validated_data)
+        super(CardSerializer).create(validated_data)
 
         cast = validated_data.pop("cast", [])
         genres = validated_data.pop("genres", [])
         country = Country.objects.get(pk=validated_data["country"])
         validated_data["country"] = country
         card = Card.objects.create(**validated_data)
-        for genre in genres:
-            card.genres.add(genre)
+        card.genres.set(genres)
 
         characters = []
         for membership in cast:
@@ -118,7 +110,6 @@ class EpisodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Episode
         fields = [
-            "url",
             "id",
             "num",
             "name",

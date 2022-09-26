@@ -1,10 +1,5 @@
 from django.urls import include, path
-from rest_framework import routers
 
-from . import views
+from .api_router import router
 
-router = routers.DefaultRouter()
-router.register(r"videos", views.VideoViewSet)
-router.register(r"trailers", views.TrailerViewSet)
-
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = [path("", include((router.urls, "encoder")))]

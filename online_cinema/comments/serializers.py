@@ -2,18 +2,18 @@ from comments.models import Bookmark, Comment, History, Subscription
 from rest_framework import serializers
 
 
-class CommentSerializer(serializers.HyperlinkedModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
     episode = serializers.ReadOnlyField(source="episode.id")
 
     class Meta:
         model = Comment
-        fields = ["url", "id", "text", "created_at", "user", "episode"]
+        fields = ["id", "text", "created_at", "user", "episode"]
 
 
 class CommentListSerializer(CommentSerializer):
     class Meta(CommentSerializer.Meta):
-        fields = ["url", "id"]
+        fields = ["id"]
 
 
 class CommentCreateSerializer(CommentSerializer):
@@ -21,18 +21,18 @@ class CommentCreateSerializer(CommentSerializer):
     episode = serializers.IntegerField(write_only=True, source="episode.id")
 
 
-class HistorySerializer(serializers.HyperlinkedModelSerializer):
+class HistorySerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
     episode = serializers.ReadOnlyField(source="episode.id")
 
     class Meta:
         model = History
-        fields = ["url", "id", "date_visited", "user", "episode"]
+        fields = ["id", "date_visited", "user", "episode"]
 
 
 class HistoryListSerializer(HistorySerializer):
     class Meta(HistorySerializer.Meta):
-        fields = ["url", "id"]
+        fields = ["id"]
 
 
 class HistoryCreateSerializer(HistorySerializer):
@@ -40,18 +40,18 @@ class HistoryCreateSerializer(HistorySerializer):
     episode = serializers.IntegerField(write_only=True, source="episode.id")
 
 
-class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
+class BookmarkSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
     card = serializers.ReadOnlyField(source="card.name")
 
     class Meta:
         model = Bookmark
-        fields = ["url", "id", "user", "card"]
+        fields = ["id", "user", "card"]
 
 
 class BookmarkListSerializer(BookmarkSerializer):
     class Meta(BookmarkSerializer.Meta):
-        fields = ["url", "id"]
+        fields = ["id"]
 
 
 class BookmarkCreateSerializer(BookmarkSerializer):
@@ -59,17 +59,17 @@ class BookmarkCreateSerializer(BookmarkSerializer):
     card = serializers.IntegerField(write_only=True, source="card.id")
 
 
-class SubSerializer(serializers.HyperlinkedModelSerializer):
+class SubSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
 
     class Meta:
         model = Subscription
-        fields = ["url", "id", "expired_date", "user"]
+        fields = ["id", "expired_date", "user"]
 
 
 class SubListSerializer(SubSerializer):
     class Meta(SubSerializer.Meta):
-        fields = ["url", "id"]
+        fields = ["id"]
 
 
 class SubCreateSerializer(SubSerializer):
