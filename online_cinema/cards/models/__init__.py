@@ -1,7 +1,7 @@
-from .card import Card, Membership
-from .country import Country
-from .episode import Episode
-from .genre import Genre
-from .season import Season
+from cards.models.card import Card, Membership
+from cards.models.country import Country
+from cards.models.episode import Episode
+from cards.models.genre import Genre
+from cards.models.season import Season
 
 __all__ = ["Card", "Membership", "Genre", "Season", "Episode", "Country"]

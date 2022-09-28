@@ -5,12 +5,12 @@ from rest_framework import serializers
 class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
-        fields = ["url", "id", "firstname", "lastname", "picture", "character"]
+        fields = ["id", "firstname", "lastname", "picture", "character"]
 
 
 class PersonListSerializer(PersonSerializer):
     class Meta(PersonSerializer.Meta):
-        fields = ["url", "id"]
+        fields = ["id"]
 
 
 class PersonCreateSerializer(PersonSerializer):

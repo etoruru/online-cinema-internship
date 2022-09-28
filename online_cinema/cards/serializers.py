@@ -125,7 +125,7 @@ class EpisodeSerializer(serializers.ModelSerializer):
 
 class EpisodeListSerializer(EpisodeSerializer):
     class Meta(EpisodeSerializer.Meta):
-        fields = ["url", "id"]
+        fields = ["id"]
 
 
 class EpisodeCreateSerializer(EpisodeSerializer):
