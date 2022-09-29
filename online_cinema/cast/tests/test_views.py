@@ -1,29 +1,35 @@
 from rest_framework import status
 from rest_framework.reverse import reverse
-from utils.test_api import CustomTestCase
+
+from online_cinema.utils.test_api import ApiTestCaseWithUser
 
 from .factories import PersonFactory
 
 
-class CastTestCase(CustomTestCase):
-    def setUp(self):
-        PersonFactory.create_batch(10)
+class TestCastViewSet(ApiTestCaseWithUser):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        PersonFactory.create_batch(5)
+        cls.url = reverse("cast:person-list")
 
-    def test_get_list(self):
-        url = reverse("cast:person-list")
-        response = self.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_200_authorized_user(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_get_one(self):
-        url = reverse("cast:person-detail", kwargs={"pk": "1"})
-        response = self.get(url=url, user=self.admin_user)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_403_not_access(self):
+        self.user.groups.clear()
+        self.user.save()
+        new_person = {"firstname": "Johny", "lastname": "Cool", "picture": "/pictures"}
+        response = self.client.post(self.url, new_person)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-    def test_create_person(self):
-        url = reverse("cast:person-list")
-        response = self.post(
-            url,
-            {"firstname": "John", "lastname": "Doe", "picture": "/"},
-            user=self.admin_user,
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    def test_201_create_person(self):
+        new_person = {"firstname": "Johny", "lastname": "Cool", "picture": "/pictures"}
+        response = self.client.post(self.url, new_person)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_200_get_one_person(self):
+        pk = {"pk": "1"}
+        response = self.client.get(self.url, pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
