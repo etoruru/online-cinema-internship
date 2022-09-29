@@ -1,0 +1,18 @@
+[
+  {"name": "thriller"},
+  {"name": "comedy"},
+  {"name": "mystery"},
+  {"name": "horror"},
+  {"name": "action"},
+  {"name": "history"},
+  {"name": "crime"},
+  {"name": "western"},
+  {"name": "romance"},
+  {"name": "fantasy"},
+  {"name": "sci-fy"},
+  {"name": "sport"},
+  {"name": "adventure"},
+  {"name": "family"},
+  {"name": "animated"},
+  {"name": "musical"}
+]
