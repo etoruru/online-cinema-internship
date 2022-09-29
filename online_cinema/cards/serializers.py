@@ -65,8 +65,7 @@ class CardCreateSerializer(CardSerializer):
         ]
 
     def create(self, validated_data):
-        super(CardSerializer).create(validated_data)
-
+        super().create(validated_data)
         cast = validated_data.pop("cast", [])
         genres = validated_data.pop("genres", [])
         country = Country.objects.get(pk=validated_data["country"])

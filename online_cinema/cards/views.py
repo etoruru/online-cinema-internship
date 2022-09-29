@@ -1,5 +1,6 @@
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from users.permissions import HasGroupPermission
 
 from .models import Card, Country, Episode, Genre, Membership, Season
@@ -22,10 +23,9 @@ from .serializers import (
 class CardViewSet(viewsets.ModelViewSet):
     queryset = Card.objects.prefetch_related("genres", "cast").select_related("country")
     serializer_class = CardSerializer
-    permission_classes = [HasGroupPermission]
+    permission_classes = [IsAuthenticated, HasGroupPermission]
     permission_groups = {
-        "create": ["_Public"],
-        # "create": ["moderator", "admin"],
+        "create": ["moderator", "admin"],
         "list": ["_Public"],
         "retrieve": ["_Public"],
         "partial_update": ["moderator", "admin"],
@@ -50,7 +50,7 @@ class CardViewSet(viewsets.ModelViewSet):
 class SeasonViewSet(viewsets.ModelViewSet):
     queryset = Season.objects.select_related("card")
     serializer_class = SeasonSerializer
-    permission_classes = [HasGroupPermission]
+    permission_classes = [IsAuthenticated, HasGroupPermission]
     permission_groups = {
         "create": ["moderator", "admin"],
         "list": ["_Public"],
@@ -70,9 +70,9 @@ class SeasonViewSet(viewsets.ModelViewSet):
 class EpisodeViewSet(viewsets.ModelViewSet):
     queryset = Episode.objects.select_related("season")
     serializer_class = EpisodeSerializer
-    permission_classes = [HasGroupPermission]
+    permission_classes = [IsAuthenticated, HasGroupPermission]
     permission_groups = {
-        "create": ["_Public"],
+        "create": ["admin", "moderator"],
         "list": ["_Public"],
         "retrieve": ["_Public"],
         "partial_update": ["moderator", "admin"],
@@ -99,6 +99,7 @@ class CountryViewSet(viewsets.ModelViewSet):
     serializer_class = CountrySerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ("name",)
+    permission_classes = [IsAuthenticated]
 
 
 class MembershipViewSet(viewsets.ModelViewSet):

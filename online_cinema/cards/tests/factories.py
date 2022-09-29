@@ -8,49 +8,44 @@ from ..models import Card, Country, Episode, Genre, Membership, Season
 
 
 class CountryFactory(DjangoModelFactory):
+    name = factory.Faker("country")
+
     class Meta:
         model = Country
 
-    name = "Russia"
-
 
 class GenreFactory(DjangoModelFactory):
+    name = "drama"
+
     class Meta:
         model = Genre
 
-    name = "drama"
-
 
 class CardFactory(DjangoModelFactory):
-    class Meta:
-        model = Card
-
-    name = "FilmOrSeries"
-    description = "La la la"
+    name = factory.Faker("company")
+    description = factory.Faker("text")
     country = factory.SubFactory(CountryFactory)
-    is_available = False
-    released_year = "2022-03-10"
+    is_available = factory.Faker("pybool")
+    released_year = factory.Faker("date_of_birth")
     banner = "/"
 
     @factory.post_generation
     def genres(self, create, extracted, **kwargs):
-        if not create:
-            # Simple build, do nothing.
-            return
-
         if extracted:
-            # A list of groups were passed in, use them
             for genre in extracted:
                 self.genres.add(genre)
 
+    class Meta:
+        model = Card
+
 
 class MembershipFactory(DjangoModelFactory):
-    class Meta:
-        model = Membership
-
-    character = "Iron Man"
+    character = factory.Faker("name")
     item = factory.SubFactory(CardFactory)
     person = factory.SubFactory(PersonFactory)
+
+    class Meta:
+        model = Membership
 
 
 class PersonWithCardFactory(PersonFactory):
@@ -65,21 +60,21 @@ class CardWithPersonFactory(CardFactory):
 
 
 class SeasonFactory(DjangoModelFactory):
-    class Meta:
-        model = Season
-
     name = factory.Sequence(lambda n: "Season #%s" % n)
     card = factory.SubFactory(CardFactory)
 
+    class Meta:
+        model = Season
+
 
 class EpisodeFactory(DjangoModelFactory):
-    class Meta:
-        model = Episode
-
     season = factory.SubFactory(SeasonFactory)
     num = 1
     name = "Episode name"
     preview = "/"
-    description = "la la la"
+    description = factory.Faker("text")
     viewers = 0
     updated_to = factory.LazyFunction(timezone.now)
+
+    class Meta:
+        model = Episode

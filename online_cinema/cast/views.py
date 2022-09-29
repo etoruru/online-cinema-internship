@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from users.permissions import HasGroupPermission
 
 from .models import Person
@@ -9,7 +9,7 @@ from .serializers import PersonCreateSerializer, PersonListSerializer, PersonSer
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-    permission_classes = [HasGroupPermission]
+    permission_classes = [IsAuthenticated, HasGroupPermission]
     permission_groups = {
         "create": ["admin"],
         "list": ["_Public"],

@@ -9,27 +9,27 @@ from ..models import Bookmark, Comment, History
 
 
 class CommentFactory(DjangoModelFactory):
-    class Meta:
-        model = Comment
-
     text = "There are some comments!"
     created_at = factory.LazyFunction(timezone.now)
     user = factory.SubFactory(UserFactory)
     episode = factory.SubFactory(EpisodeFactory)
 
+    class Meta:
+        model = Comment
+
 
 class HistoryFactory(DjangoModelFactory):
-    class Meta:
-        model = History
-
     date_visited = factory.LazyFunction(timezone.now)
     user = factory.SubFactory(UserFactory)
     episode = factory.SubFactory(EpisodeFactory)
 
+    class Meta:
+        model = History
+
 
 class BookmarkFactory(DjangoModelFactory):
-    class Meta:
-        model = Bookmark
-
     user = factory.SubFactory(UserFactory)
     card = factory.SubFactory(CardFactory)
+
+    class Meta:
+        model = Bookmark
