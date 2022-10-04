@@ -1,7 +1,7 @@
+import factory
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from online_cinema.cards.models import Country
 from online_cinema.utils.test_api import ApiTestCaseWithUser
 
 from .factories import (
@@ -23,13 +23,18 @@ class CountryTestCase(ApiTestCaseWithUser):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
+    def test_403_unauthorized_user(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
 
 class CardTestCase(ApiTestCaseWithUser):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         CardFactory.create_batch(5)
-        cls.country = Country.objects.filter(30)
+        cls.country = CountryFactory.create()
         cls.genre = GenreFactory.create()
         cls.url = reverse("cards:card-list")
 
@@ -38,24 +43,42 @@ class CardTestCase(ApiTestCaseWithUser):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_200_get_one(self):
-        pk = {"pk": "1"}
+        card = CardFactory()
+        pk = {"pk": card.pk}
         response = self.client.get(self.url, pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_card(self):
-        new_card = {
-            "name": "Blockbaster",
-            "type": "F",
-            "description": "It' a cool film",
-            "released_year": "2022-10-12",
-            "country": self.country,
-            "banner": "/",
-            "is_available": False,
-            "genres": [self.genre.pk],
-            "cast": [{"character": "Captain", "person": 3}],
-        }
+        new_card = factory.build(dict, FACTORY_CLASS=CardFactory)
+        new_card["country"] = self.country.pk
+        new_card["genres"] = [self.genre.pk]
+        new_card["cast"] = [{"character": "Captain", "person": 3}]
         response = self.client.post(self.url, new_card)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_403_create_card(self):
+        new_card = factory.build(dict, FACTORY_CLASS=CardFactory)
+        new_card["country"] = self.country.pk
+        new_card["genres"] = [self.genre.pk]
+        new_card["cast"] = [{"character": "Captain", "person": 3}]
+        self.client.force_authenticate(user=None)
+        response = self.client.post(self.url, new_card)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_204_delete_card(self):
+        card = CardFactory()
+        url = reverse("cards:card-detail", args=[card.pk])
+        response = self.client.delete(url)
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+
+    def test_403_delete_card(self):
+        card = CardFactory()
+        url = reverse("cards:card-detail", args=[card.pk])
+        self.client.force_authenticate(user=None)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
 
 class SeasonTestCase(ApiTestCaseWithUser):
@@ -71,21 +94,32 @@ class SeasonTestCase(ApiTestCaseWithUser):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_200_get_one(self):
-        pk = {"pk": "1"}
+        season = SeasonFactory()
+        pk = {"pk": season.pk}
         response = self.client.get(self.url, pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_season(self):
-        new_season = {"name": "1", "card": self.card.pk}
+        new_season = factory.build(dict, FACTORY_CLASS=SeasonFactory)
+        new_season["card"] = self.card.pk
         response = self.client.post(self.url, new_season)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_403__not_access_create_season(self):
         self.user.groups.clear()
         self.user.save()
-        new_season = {"name": "1", "card": self.card.pk}
+        new_season = factory.build(dict, FACTORY_CLASS=SeasonFactory)
+        new_season["card"] = self.card.pk
         response = self.client.post(self.url, new_season)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_204_delete_season(self):
+        season = SeasonFactory()
+        url = reverse("cards:season-detail", args=[season.pk])
+        response = self.client.delete(url)
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
 
 
 class EpisodeTestCase(ApiTestCaseWithUser):
@@ -101,34 +135,36 @@ class EpisodeTestCase(ApiTestCaseWithUser):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_200_get_one(self):
-        pk = {"pk": "1"}
+        episode = EpisodeFactory()
+        pk = {"pk": episode.pk}
         response = self.client.get(self.url, pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_episode(self):
-        new_episode = {
-            "num": 3,
-            "name": "Red",
-            "preview": "/",
-            "description": "killeeer",
-            "viewers": 0,
-            "updated_to": "2022-09-13T11:29:50Z",
-            "season": self.season.pk,
-        }
+        new_episode = factory.build(dict, FACTORY_CLASS=EpisodeFactory)
+        new_episode["season"] = self.season.pk
         response = self.client.post(self.url, new_episode)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_403_denied_create_episode(self):
         self.user.groups.clear()
         self.user.save()
-        new_episode = {
-            "num": 3,
-            "name": "Red",
-            "preview": "/",
-            "description": "killeeer",
-            "viewers": 0,
-            "updated_to": "2022-09-13T11:29:50Z",
-            "season": self.season.pk,
-        }
+        new_episode = factory.build(dict, FACTORY_CLASS=EpisodeFactory)
+        new_episode["season"] = self.season.pk
         response = self.client.post(self.url, new_episode)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_204_delete_episode(self):
+        episode = EpisodeFactory()
+        url = reverse("cards:episode-detail", args=[episode.pk])
+        response = self.client.delete(url)
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+
+    def test_403_delete_episode(self):
+        episode = EpisodeFactory()
+        url = reverse("cards:episode-detail", args=[episode.pk])
+        self.client.force_authenticate(user=None)
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)

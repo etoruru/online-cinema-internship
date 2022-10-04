@@ -3,14 +3,13 @@ from rest_framework import serializers
 from .models import Trailer, Video
 
 
-class VideoSerializer(serializers.HyperlinkedModelSerializer):
+class VideoSerializer(serializers.ModelSerializer):
     created_by = serializers.ReadOnlyField(source="created_by.username")
     item = serializers.ReadOnlyField(source="item.id")
 
     class Meta:
         model = Video
         fields = [
-            "url",
             "id",
             "filename",
             "filepath",
@@ -24,10 +23,13 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
 
 class VideoListSerializer(VideoSerializer):
     class Meta(VideoSerializer.Meta):
-        fields = ["url", "id"]
+        fields = ["id"]
 
 
 class VideoCreateSerializer(VideoSerializer):
+    created_by = serializers.ReadOnlyField(source="created_by.username")
+    item = None
+
     class Meta(VideoSerializer.Meta):
         fields = [
             "filename",
@@ -40,22 +42,23 @@ class VideoCreateSerializer(VideoSerializer):
         ]
 
 
-class TrailerSerializer(serializers.HyperlinkedModelSerializer):
-    card = serializers.ReadOnlyField(source="card.name")
-    video = serializers.HyperlinkedRelatedField(
-        many=True, view_name="video-detail", read_only=True
-    )
+class TrailerSerializer(serializers.ModelSerializer):
+    card = serializers.ReadOnlyField(source="trailers")
+    video = VideoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Trailer
-        fields = ["url", "id", "card", "video"]
+        fields = ["id", "card", "video"]
 
 
 class TrailerListSerializer(VideoSerializer):
     class Meta(VideoSerializer.Meta):
-        fields = ["url", "id"]
+        fields = ["id"]
 
 
 class TrailerCreateSerializer(VideoSerializer):
+    card = None
+    video = None
+
     class Meta(VideoSerializer.Meta):
         fields = ["card", "video"]

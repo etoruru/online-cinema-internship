@@ -16,13 +16,25 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class MembershipSerializer(serializers.ModelSerializer):
+
+    # person = serializers.PrimaryKeyRelatedField(read_only=True)
+    # item = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = Membership
-        fields = ["id", "character", "person", "item"]
+        fields = ["id", "character", "person"]
+
+
+# class MembershipCreateSerializer(MembershipSerializer):
+#
+#     class Meta:
+#         model = Membership
+#         fields = ["character", "person"]
 
 
 class CardSerializer(serializers.ModelSerializer):
-    cast = MembershipSerializer(source="character", many=True, read_only=True)
+    cast = MembershipSerializer(source="card_to_person", many=True, read_only=True)
+    country = serializers.StringRelatedField()
+    genres = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Card
@@ -47,11 +59,27 @@ class CardListSerializer(CardSerializer):
 
 class CardCreateSerializer(CardSerializer):
     country = None
-    cast = None
+    cast = MembershipSerializer(many=True, source="card_to_person")
     genres = None
 
-    class Meta(CardSerializer.Meta):
+    def create(self, validated_data):
+        people = validated_data.pop("card_to_person")
+        genres = validated_data.pop("genres")
+        card = Card.objects.create(**validated_data)
+        card.genres.set(genres)
 
+        characters = []
+        for membership in people:
+            character = Membership(
+                person=membership["person"],
+                item=card,
+                character=membership["character"],
+            )
+            characters.append(character)
+        Membership.objects.bulk_create(characters)
+        return card
+
+    class Meta(CardSerializer.Meta):
         fields = [
             "name",
             "type",
@@ -64,27 +92,9 @@ class CardCreateSerializer(CardSerializer):
             "cast",
         ]
 
-    def create(self, validated_data):
-        super().create(validated_data)
-        cast = validated_data.pop("cast", [])
-        genres = validated_data.pop("genres", [])
-        country = Country.objects.get(pk=validated_data["country"])
-        validated_data["country"] = country
-        card = Card.objects.create(**validated_data)
-        card.genres.set(genres)
-
-        characters = []
-        for membership in cast:
-            person = Person.objects.get(pk=membership["person"])
-            character = Membership(
-                person=person, item=card, character=membership["character"]
-            )
-            characters.append(character)
-        Membership.objects.bulk_create(characters)
-        return card
-
 
 class SeasonSerializer(serializers.ModelSerializer):
+    card = serializers.PrimaryKeyRelatedField(read_only=True)
     episodes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
@@ -98,6 +108,8 @@ class SeasonListSerializer(SeasonSerializer):
 
 
 class SeasonCreateSerializer(SeasonSerializer):
+    card = None
+
     class Meta(SeasonSerializer.Meta):
         fields = ["name", "card"]
 

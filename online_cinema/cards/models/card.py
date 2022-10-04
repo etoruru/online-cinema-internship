@@ -23,6 +23,8 @@ class Card(models.Model):
 class Membership(models.Model):
     character = models.CharField(max_length=200)
     person = models.ForeignKey(
-        "cast.Person", on_delete=models.CASCADE, related_name="character"
+        "cast.Person", on_delete=models.CASCADE, related_name="card_to_person"
     )
-    item = models.ForeignKey("Card", on_delete=models.PROTECT, related_name="character")
+    item = models.ForeignKey(
+        "Card", on_delete=models.PROTECT, related_name="card_to_person"
+    )

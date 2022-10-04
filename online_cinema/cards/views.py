@@ -1,6 +1,5 @@
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 from users.permissions import HasGroupPermission
 
 from .models import Card, Country, Episode, Genre, Membership, Season
@@ -23,13 +22,13 @@ from .serializers import (
 class CardViewSet(viewsets.ModelViewSet):
     queryset = Card.objects.prefetch_related("genres", "cast").select_related("country")
     serializer_class = CardSerializer
-    permission_classes = [IsAuthenticated, HasGroupPermission]
+    permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["moderator", "admin"],
         "list": ["_Public"],
         "retrieve": ["_Public"],
         "partial_update": ["moderator", "admin"],
-        "delete": ["admin"],
+        "destroy": ["admin"],
     }
 
     def get_serializer_class(self):
@@ -39,24 +38,17 @@ class CardViewSet(viewsets.ModelViewSet):
             return CardCreateSerializer
         return CardSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(
-            country=self.request.data["country"],
-            genres=self.request.data["genres"],
-            cast=self.request.data["cast"],
-        )
-
 
 class SeasonViewSet(viewsets.ModelViewSet):
     queryset = Season.objects.select_related("card")
     serializer_class = SeasonSerializer
-    permission_classes = [IsAuthenticated, HasGroupPermission]
+    permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["moderator", "admin"],
         "list": ["_Public"],
         "retrieve": ["_Public"],
         "partial_update": ["moderator", "admin"],
-        "delete": ["admin"],
+        "destroy": ["moderator", "admin"],
     }
 
     def get_serializer_class(self):
@@ -70,13 +62,13 @@ class SeasonViewSet(viewsets.ModelViewSet):
 class EpisodeViewSet(viewsets.ModelViewSet):
     queryset = Episode.objects.select_related("season")
     serializer_class = EpisodeSerializer
-    permission_classes = [IsAuthenticated, HasGroupPermission]
+    permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["admin", "moderator"],
         "list": ["_Public"],
         "retrieve": ["_Public"],
         "partial_update": ["moderator", "admin"],
-        "delete": ["admin", "moderator"],
+        "destroy": ["admin", "moderator"],
     }
 
     def get_serializer_class(self):
@@ -99,7 +91,6 @@ class CountryViewSet(viewsets.ModelViewSet):
     serializer_class = CountrySerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ("name",)
-    permission_classes = [IsAuthenticated]
 
 
 class MembershipViewSet(viewsets.ModelViewSet):

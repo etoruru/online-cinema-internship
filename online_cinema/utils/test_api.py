@@ -10,6 +10,8 @@ class ApiTestCaseWithUser(APITestCase):
     def setUpTestData(cls):
         cls.user = AdminFactory.create()
         cls.user.groups.add(GroupFactory.create())
+        # cls.user = UserFactory()
 
     def setUp(self) -> None:
         self.client.force_authenticate(self.user)
+        # self.client.login(username=self.user.username, password=self.user.password )

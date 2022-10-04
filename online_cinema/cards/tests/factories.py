@@ -1,6 +1,7 @@
 import factory
 from django.utils import timezone
 from factory.django import DjangoModelFactory
+from factory.fuzzy import FuzzyChoice
 
 from online_cinema.cast.tests.factories import PersonFactory
 
@@ -22,6 +23,7 @@ class GenreFactory(DjangoModelFactory):
 
 
 class CardFactory(DjangoModelFactory):
+    type = FuzzyChoice(["F", "S"])
     name = factory.Faker("company")
     description = factory.Faker("text")
     country = factory.SubFactory(CountryFactory)
@@ -34,6 +36,12 @@ class CardFactory(DjangoModelFactory):
         if extracted:
             for genre in extracted:
                 self.genres.add(genre)
+
+    @factory.post_generation
+    def cast(self, create, extracted, **kwargs):
+        if extracted:
+            for membership in extracted:
+                self.cast.add(membership)
 
     class Meta:
         model = Card

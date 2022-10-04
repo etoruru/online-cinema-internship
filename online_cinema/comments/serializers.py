@@ -18,11 +18,14 @@ class CommentListSerializer(CommentSerializer):
 
 class CommentCreateSerializer(CommentSerializer):
     user = serializers.CharField(write_only=True, source="user.username")
-    episode = serializers.IntegerField(write_only=True, source="episode.id")
+    episode = None
 
     def create(self, validated_data):
         comment = Comment.objects.create(**validated_data)
         return comment
+
+    class Meta(CommentSerializer.Meta):
+        fields = ["text", "created_at", "episode"]
 
 
 class HistorySerializer(serializers.ModelSerializer):
@@ -41,7 +44,7 @@ class HistoryListSerializer(HistorySerializer):
 
 class HistoryCreateSerializer(HistorySerializer):
     user = serializers.CharField(write_only=True, source="user.username")
-    episode = serializers.IntegerField(write_only=True, source="episode.id")
+    episode = None
 
 
 class BookmarkSerializer(serializers.ModelSerializer):
@@ -60,7 +63,7 @@ class BookmarkListSerializer(BookmarkSerializer):
 
 class BookmarkCreateSerializer(BookmarkSerializer):
     user = serializers.CharField(write_only=True, source="user.username")
-    card = serializers.IntegerField(write_only=True, source="card.id")
+    card = None
 
     def create(self, validated_data):
         bookmark = Bookmark.objects.create(**validated_data)

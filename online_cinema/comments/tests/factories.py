@@ -5,7 +5,7 @@ from factory.django import DjangoModelFactory
 from online_cinema.cards.tests.factories import CardFactory, EpisodeFactory
 from online_cinema.users.tests.factories import UserFactory
 
-from ..models import Bookmark, Comment, History
+from ..models import Bookmark, Comment, History, Subscription
 
 
 class CommentFactory(DjangoModelFactory):
@@ -33,3 +33,11 @@ class BookmarkFactory(DjangoModelFactory):
 
     class Meta:
         model = Bookmark
+
+
+class SubsFactory(DjangoModelFactory):
+    user = factory.SubFactory(UserFactory)
+    expired_date = factory.LazyFunction(timezone.now)
+
+    class Meta:
+        model = Subscription

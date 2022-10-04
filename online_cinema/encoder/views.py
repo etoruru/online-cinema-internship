@@ -3,8 +3,10 @@ from users.permissions import HasGroupPermission
 
 from .models import Trailer, Video
 from .serializers import (
+    TrailerCreateSerializer,
     TrailerListSerializer,
     TrailerSerializer,
+    VideoCreateSerializer,
     VideoListSerializer,
     VideoSerializer,
 )
@@ -19,15 +21,17 @@ class VideoViewSet(viewsets.ModelViewSet):
         "list": ["moderator", "admin"],
         "retrieve": ["moderator", "admin"],
         "partial_update": ["moderator", "admin"],
-        "delete": ["admin"],
+        "destroy": ["moderator", "admin"],
     }
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user, item=self.request.data["episode"])
+        serializer.save(created_by=self.request.user)
 
     def get_serializer_class(self):
         if self.action == "list":
             return VideoListSerializer
+        elif self.action == "create":
+            return VideoCreateSerializer
         return VideoSerializer
 
 
@@ -40,15 +44,12 @@ class TrailerViewSet(viewsets.ModelViewSet):
         "list": ["moderator", "admin"],
         "retrieve": ["moderator", "admin"],
         "partial_update": ["moderator", "admin"],
-        "delete": ["admin"],
+        "destroy": ["admin"],
     }
-
-    def perform_create(self, serializer):
-        serializer.save(
-            card=self.request.data["card"], video=self.request.data["video"]
-        )
 
     def get_serializer_class(self):
         if self.action == "list":
             return TrailerListSerializer
+        elif self.action == "create":
+            return TrailerCreateSerializer
         return TrailerSerializer
