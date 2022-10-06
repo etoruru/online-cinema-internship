@@ -40,6 +40,7 @@ class CardFactory(DjangoModelFactory):
     @factory.post_generation
     def cast(self, create, extracted, **kwargs):
         if extracted:
+
             for membership in extracted:
                 self.cast.add(membership)
 
@@ -78,7 +79,7 @@ class SeasonFactory(DjangoModelFactory):
 class EpisodeFactory(DjangoModelFactory):
     season = factory.SubFactory(SeasonFactory)
     num = 1
-    name = "Episode name"
+    name = factory.Sequence(lambda n: "Episode #%s" % n)
     preview = "/"
     description = factory.Faker("text")
     viewers = 0

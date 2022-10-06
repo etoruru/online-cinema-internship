@@ -32,8 +32,7 @@ class TestCastViewSet(ApiTestCaseWithUser):
 
     def test_200_get_one_person(self):
         person = PersonFactory()
-        pk = {"pk": person.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": person.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_204_delete_person(self):

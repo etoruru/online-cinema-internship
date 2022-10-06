@@ -22,8 +22,7 @@ class VideoTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one_video(self):
         video = VideoFactory()
-        pk = {"pk": video.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": video.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_204_delete_video(self):
@@ -42,14 +41,16 @@ class VideoTestCase(ApiTestCaseWithUser):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_201_create_video(self):
-        new_video = factory.build(dict, FACTORY_CLASS=VideoFactory)
-        new_video["item"] = self.episode.pk
+        new_video = factory.build(
+            dict, FACTORY_CLASS=VideoFactory, item=self.episode.pk
+        )
         response = self.client.post(self.url, new_video)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_403_create_video(self):
-        new_video = factory.build(dict, FACTORY_CLASS=VideoFactory)
-        new_video["item"] = self.episode.pk
+        new_video = factory.build(
+            dict, FACTORY_CLASS=VideoFactory, item=self.episode.pk
+        )
         self.client.force_authenticate(user=None)
         response = self.client.post(self.url, new_video)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
@@ -87,8 +88,7 @@ class TrailerTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one_trailer(self):
         trailer = TrailerFactory()
-        pk = {"pk": trailer.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": trailer.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_204_delete_trailer(self):

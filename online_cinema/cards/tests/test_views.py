@@ -44,23 +44,28 @@ class CardTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one(self):
         card = CardFactory()
-        pk = {"pk": card.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": card.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_card(self):
-        new_card = factory.build(dict, FACTORY_CLASS=CardFactory)
-        new_card["country"] = self.country.pk
-        new_card["genres"] = [self.genre.pk]
-        new_card["cast"] = [{"character": "Captain", "person": 3}]
+        new_card = factory.build(
+            dict,
+            FACTORY_CLASS=CardFactory,
+            country=self.country.pk,
+            genres=[self.genre.pk],
+            cast=[{"character": "Captain", "person": 3}],
+        )
         response = self.client.post(self.url, new_card)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_403_create_card(self):
-        new_card = factory.build(dict, FACTORY_CLASS=CardFactory)
-        new_card["country"] = self.country.pk
-        new_card["genres"] = [self.genre.pk]
-        new_card["cast"] = [{"character": "Captain", "person": 3}]
+        new_card = factory.build(
+            dict,
+            FACTORY_CLASS=CardFactory,
+            country=self.country.pk,
+            genres=[self.genre.pk],
+            cast=[{"character": "Captain", "person": 3}],
+        )
         self.client.force_authenticate(user=None)
         response = self.client.post(self.url, new_card)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
@@ -95,21 +100,18 @@ class SeasonTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one(self):
         season = SeasonFactory()
-        pk = {"pk": season.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": season.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_season(self):
-        new_season = factory.build(dict, FACTORY_CLASS=SeasonFactory)
-        new_season["card"] = self.card.pk
+        new_season = factory.build(dict, FACTORY_CLASS=SeasonFactory, card=self.card.pk)
         response = self.client.post(self.url, new_season)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_403__not_access_create_season(self):
         self.user.groups.clear()
         self.user.save()
-        new_season = factory.build(dict, FACTORY_CLASS=SeasonFactory)
-        new_season["card"] = self.card.pk
+        new_season = factory.build(dict, FACTORY_CLASS=SeasonFactory, card=self.card.pk)
         response = self.client.post(self.url, new_season)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
@@ -136,21 +138,22 @@ class EpisodeTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one(self):
         episode = EpisodeFactory()
-        pk = {"pk": episode.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": episode.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_episode(self):
-        new_episode = factory.build(dict, FACTORY_CLASS=EpisodeFactory)
-        new_episode["season"] = self.season.pk
+        new_episode = factory.build(
+            dict, FACTORY_CLASS=EpisodeFactory, season=self.season.pk
+        )
         response = self.client.post(self.url, new_episode)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_403_denied_create_episode(self):
         self.user.groups.clear()
         self.user.save()
-        new_episode = factory.build(dict, FACTORY_CLASS=EpisodeFactory)
-        new_episode["season"] = self.season.pk
+        new_episode = factory.build(
+            dict, FACTORY_CLASS=EpisodeFactory, season=self.season.pk
+        )
         response = self.client.post(self.url, new_episode)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 

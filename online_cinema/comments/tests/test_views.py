@@ -22,13 +22,13 @@ class CommentsTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one_comment(self):
         comment = CommentFactory()
-        pk = {"pk": comment.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": comment.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_comment(self):
-        new_comment = factory.build(dict, FACTORY_CLASS=CommentFactory)
-        new_comment["episode"] = self.episode.pk
+        new_comment = factory.build(
+            dict, FACTORY_CLASS=CommentFactory, episode=self.episode.pk
+        )
         response = self.client.post(self.url, new_comment)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -66,13 +66,13 @@ class BookmarkTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one_bookmark(self):
         bookmark = BookmarkFactory()
-        pk = {"pk": bookmark.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": bookmark.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_bookmark(self):
-        new_bookmark = factory.build(dict, FACTORY_CLASS=BookmarkFactory)
-        new_bookmark["card"] = self.card.pk
+        new_bookmark = factory.build(
+            dict, FACTORY_CLASS=BookmarkFactory, card=self.card.pk
+        )
         response = self.client.post(self.url, new_bookmark)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -106,8 +106,7 @@ class HistoryTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one_history(self):
         history = HistoryFactory()
-        pk = {"pk": history.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": history.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_204_delete_history(self):
@@ -126,8 +125,9 @@ class HistoryTestCase(ApiTestCaseWithUser):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_201_create_history(self):
-        new_history = factory.build(dict, FACTORY_CLASS=HistoryFactory)
-        new_history["episode"] = self.episode.pk
+        new_history = factory.build(
+            dict, FACTORY_CLASS=HistoryFactory, episode=self.episode.pk
+        )
         response = self.client.post(self.url, new_history)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -145,8 +145,7 @@ class SubscriptionTestCase(ApiTestCaseWithUser):
 
     def test_200_get_one_sub(self):
         sub = SubsFactory()
-        pk = {"pk": sub.pk}
-        response = self.client.get(self.url, pk)
+        response = self.client.get(self.url, {"pk": sub.pk})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_201_create_sub(self):
