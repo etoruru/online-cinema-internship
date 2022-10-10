@@ -1,5 +1,4 @@
 from cards.models import Card, Country, Episode, Genre, Membership, Season
-from cast.models import Person
 from rest_framework import serializers
 
 
@@ -16,19 +15,9 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class MembershipSerializer(serializers.ModelSerializer):
-
-    # person = serializers.PrimaryKeyRelatedField(read_only=True)
-    # item = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = Membership
         fields = ["id", "character", "person"]
-
-
-# class MembershipCreateSerializer(MembershipSerializer):
-#
-#     class Meta:
-#         model = Membership
-#         fields = ["character", "person"]
 
 
 class CardSerializer(serializers.ModelSerializer):

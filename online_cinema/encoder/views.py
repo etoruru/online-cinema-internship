@@ -1,3 +1,4 @@
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from users.permissions import HasGroupPermission
 
@@ -23,6 +24,8 @@ class VideoViewSet(viewsets.ModelViewSet):
         "partial_update": ["moderator", "admin"],
         "destroy": ["moderator", "admin"],
     }
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("status", "created_by", "item", "resolution", "created_at")
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -46,6 +49,8 @@ class TrailerViewSet(viewsets.ModelViewSet):
         "partial_update": ["moderator", "admin"],
         "destroy": ["admin"],
     }
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("card", "resolution")
 
     def get_serializer_class(self):
         if self.action == "list":

@@ -1,5 +1,6 @@
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
+from rest_framework_extensions.mixins import NestedViewSetMixin
 from users.permissions import HasGroupPermission
 
 from .models import Card, Country, Episode, Genre, Membership, Season
@@ -19,7 +20,7 @@ from .serializers import (
 )
 
 
-class CardViewSet(viewsets.ModelViewSet):
+class CardViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Card.objects.prefetch_related("genres", "cast").select_related("country")
     serializer_class = CardSerializer
     permission_classes = [HasGroupPermission]
@@ -30,6 +31,8 @@ class CardViewSet(viewsets.ModelViewSet):
         "partial_update": ["moderator", "admin"],
         "destroy": ["admin"],
     }
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("type", "released_year", "country", "genres", "is_available")
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -50,6 +53,8 @@ class SeasonViewSet(viewsets.ModelViewSet):
         "partial_update": ["moderator", "admin"],
         "destroy": ["moderator", "admin"],
     }
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = "card"
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -70,6 +75,8 @@ class EpisodeViewSet(viewsets.ModelViewSet):
         "partial_update": ["moderator", "admin"],
         "destroy": ["admin", "moderator"],
     }
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("viewers", "season", "updated_to")
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -96,3 +103,5 @@ class CountryViewSet(viewsets.ModelViewSet):
 class MembershipViewSet(viewsets.ModelViewSet):
     queryset = Membership.objects.prefetch_related("person", "item")
     serializer_class = MembershipSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("person", "item", "character")

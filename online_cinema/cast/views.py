@@ -1,3 +1,4 @@
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from users.permissions import HasGroupPermission
 
@@ -16,6 +17,8 @@ class PersonViewSet(viewsets.ModelViewSet):
         "partial_update": ["admin"],
         "destroy": ["admin"],
     }
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = "firstname"
 
     def get_serializer_class(self):
         if self.action == "list":

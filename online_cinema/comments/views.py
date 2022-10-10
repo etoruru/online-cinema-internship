@@ -1,3 +1,4 @@
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from users.permissions import HasGroupPermission, IsOwnerOrReadOnly
 
@@ -22,6 +23,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.select_related("user", "episode")
     serializer_class = CommentSerializer
     permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("user", "episode")
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -38,6 +41,8 @@ class HistoryViewSet(viewsets.ModelViewSet):
     queryset = History.objects.select_related("user", "episode")
     serializer_class = HistorySerializer
     permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("user", "episode")
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -54,6 +59,8 @@ class BookmarkViewSet(viewsets.ModelViewSet):
     queryset = Bookmark.objects.select_related("user", "card")
     serializer_class = BookmarkSerializer
     permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("user", "card")
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -70,6 +77,8 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
     queryset = Subscription.objects.select_related("user")
     serializer_class = SubSerializer
     permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = "expired_date"
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
