@@ -16,18 +16,6 @@ def create_country(apps, schema_editor):
     ])
 
 
-def create_genre(apps, schema_editor):
-    Genre = apps.get_model('cards', 'Genre')
-    db_alias = schema_editor.connection.alias
-
-    with open(os.path.join(base.ROOT_DIR, 'initial_data/genres.json'), 'r') as f:
-        genres = json.load(f)
-
-    Genre.objects.using(db_alias).bulk_create([
-        Genre(**genre)for genre in genres
-    ])
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -35,5 +23,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_country, create_genre, migrations.RunPython.noop)
+        migrations.RunPython(create_country, migrations.RunPython.noop),
     ]
