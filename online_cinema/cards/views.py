@@ -5,13 +5,15 @@ from users.permissions import HasGroupPermission
 
 from .models import Card, Country, Episode, Genre, Membership, Season
 from .serializers import (
+    BasicCardSerializer,
+    BasicEpisodeSerializer,
     CardCreateSerializer,
+    CardEpisodeCreateSerializer,
+    CardEpisodeListSerializer,
     CardListSerializer,
-    CardSerializer,
     CountrySerializer,
-    EpisodeCreateSerializer,
-    EpisodeListSerializer,
-    EpisodeSerializer,
+    FullCardSerializer,
+    FullEpisodeSerializer,
     GenreSerializer,
     MembershipSerializer,
     SeasonCreateSerializer,
@@ -22,7 +24,6 @@ from .serializers import (
 
 class CardViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Card.objects.prefetch_related("genres", "cast").select_related("country")
-    serializer_class = CardSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["moderator", "admin"],
@@ -37,12 +38,17 @@ class CardViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return CardListSerializer
-        elif self.action == "create":
-            return CardCreateSerializer
-        return CardSerializer
+        if self.request.user.is_staff or (
+            "moderator" in list(self.request.user.groups.values_list("name", flat=True))
+        ):
+            if self.action == "create":
+                return CardCreateSerializer
+            else:
+                return FullCardSerializer
+        return BasicCardSerializer
 
 
-class SeasonViewSet(viewsets.ModelViewSet):
+class SeasonViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Season.objects.select_related("card")
     serializer_class = SeasonSerializer
     permission_classes = [HasGroupPermission]
@@ -54,7 +60,7 @@ class SeasonViewSet(viewsets.ModelViewSet):
         "destroy": ["moderator", "admin"],
     }
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = "card"
+    filterset_fields = ("card",)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -64,9 +70,9 @@ class SeasonViewSet(viewsets.ModelViewSet):
         return SeasonSerializer
 
 
-class EpisodeViewSet(viewsets.ModelViewSet):
+class EpisodeViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Episode.objects.select_related("season")
-    serializer_class = EpisodeSerializer
+    serializer_class = FullEpisodeSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["admin", "moderator"],
@@ -80,10 +86,15 @@ class EpisodeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "list":
-            return EpisodeListSerializer
-        elif self.action == "create":
-            return EpisodeCreateSerializer
-        return EpisodeSerializer
+            return CardEpisodeListSerializer
+        if self.request.user.is_staff or (
+            "moderator" in list(self.request.user.groups.values_list("name", flat=True))
+        ):
+            if self.action == "create":
+                return CardEpisodeCreateSerializer
+            else:
+                return FullEpisodeSerializer
+        return BasicEpisodeSerializer
 
 
 class GenreViewSet(viewsets.ModelViewSet):

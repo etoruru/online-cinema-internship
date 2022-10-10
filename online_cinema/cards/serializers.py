@@ -20,7 +20,7 @@ class MembershipSerializer(serializers.ModelSerializer):
         fields = ["id", "character", "person"]
 
 
-class CardSerializer(serializers.ModelSerializer):
+class FullCardSerializer(serializers.ModelSerializer):
     cast = MembershipSerializer(source="card_to_person", many=True, read_only=True)
     country = serializers.StringRelatedField()
     genres = serializers.StringRelatedField(many=True)
@@ -41,12 +41,25 @@ class CardSerializer(serializers.ModelSerializer):
         ]
 
 
-class CardListSerializer(CardSerializer):
-    class Meta(CardSerializer.Meta):
+class BasicCardSerializer(FullCardSerializer):
+    class Meta(FullCardSerializer.Meta):
+        fields = [
+            "name",
+            "type",
+            "description",
+            "released_year",
+            "country",
+            "genres",
+            "cast",
+        ]
+
+
+class CardListSerializer(FullCardSerializer):
+    class Meta(FullCardSerializer.Meta):
         fields = ["id", "name"]
 
 
-class CardCreateSerializer(CardSerializer):
+class CardCreateSerializer(FullCardSerializer):
     country = None
     cast = MembershipSerializer(many=True, source="card_to_person")
     genres = None
@@ -68,7 +81,7 @@ class CardCreateSerializer(CardSerializer):
         Membership.objects.bulk_create(characters)
         return card
 
-    class Meta(CardSerializer.Meta):
+    class Meta(FullCardSerializer.Meta):
         fields = [
             "name",
             "type",
@@ -103,7 +116,7 @@ class SeasonCreateSerializer(SeasonSerializer):
         fields = ["name", "card"]
 
 
-class EpisodeSerializer(serializers.ModelSerializer):
+class FullEpisodeSerializer(serializers.ModelSerializer):
     comments = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     videos = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
@@ -123,15 +136,27 @@ class EpisodeSerializer(serializers.ModelSerializer):
         ]
 
 
-class EpisodeListSerializer(EpisodeSerializer):
-    class Meta(EpisodeSerializer.Meta):
+class BasicEpisodeSerializer(serializers.ModelSerializer):
+    class Meta(FullCardSerializer.Meta):
+        fields = [
+            "num",
+            "name",
+            "description",
+            "season",
+            "comments",
+            "videos",
+        ]
+
+
+class CardEpisodeListSerializer(FullEpisodeSerializer):
+    class Meta(FullEpisodeSerializer.Meta):
         fields = ["id"]
 
 
-class EpisodeCreateSerializer(EpisodeSerializer):
+class CardEpisodeCreateSerializer(FullEpisodeSerializer):
     season = None
 
-    class Meta(EpisodeSerializer.Meta):
+    class Meta(FullEpisodeSerializer.Meta):
         fields = [
             "num",
             "name",
