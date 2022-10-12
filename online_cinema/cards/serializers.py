@@ -49,6 +49,7 @@ class BasicCardSerializer(FullCardSerializer):
             "description",
             "released_year",
             "country",
+            "banner",
             "genres",
             "cast",
         ]
@@ -136,11 +137,12 @@ class FullEpisodeSerializer(serializers.ModelSerializer):
         ]
 
 
-class BasicEpisodeSerializer(serializers.ModelSerializer):
-    class Meta(FullCardSerializer.Meta):
+class BasicEpisodeSerializer(FullEpisodeSerializer):
+    class Meta(FullEpisodeSerializer.Meta):
         fields = [
             "num",
             "name",
+            "preview",
             "description",
             "season",
             "comments",
@@ -148,12 +150,12 @@ class BasicEpisodeSerializer(serializers.ModelSerializer):
         ]
 
 
-class CardEpisodeListSerializer(FullEpisodeSerializer):
+class EpisodeListSerializer(FullEpisodeSerializer):
     class Meta(FullEpisodeSerializer.Meta):
         fields = ["id"]
 
 
-class CardEpisodeCreateSerializer(FullEpisodeSerializer):
+class EpisodeCreateSerializer(FullEpisodeSerializer):
     season = None
 
     class Meta(FullEpisodeSerializer.Meta):
