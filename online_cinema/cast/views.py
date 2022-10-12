@@ -18,7 +18,7 @@ class PersonViewSet(viewsets.ModelViewSet):
         "destroy": ["admin"],
     }
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = "firstname"
+    filterset_fields = ("firstname",)
 
     def get_serializer_class(self):
         if self.action == "list":
