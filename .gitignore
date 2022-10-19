@@ -331,3 +331,6 @@ online_cinema/media/
 .env
 .envs/*
 !.envs/.local/
+
+# Temporary folder for videofiles
+online_cinema/videofiles

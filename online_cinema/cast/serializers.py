@@ -1,5 +1,6 @@
-from cast.models import Person
 from rest_framework import serializers
+
+from online_cinema.cast.models import Person
 
 
 class PersonSerializer(serializers.ModelSerializer):

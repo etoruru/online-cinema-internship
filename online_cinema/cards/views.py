@@ -1,7 +1,8 @@
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from users.permissions import HasGroupPermission
+
+from online_cinema.users.permissions import HasGroupPermission
 
 from .models import Card, Country, Episode, Genre, Membership, Season
 from .serializers import (

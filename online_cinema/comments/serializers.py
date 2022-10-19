@@ -1,5 +1,6 @@
-from comments.models import Bookmark, Comment, History, Subscription
 from rest_framework import serializers
+
+from online_cinema.comments.models import Bookmark, Comment, History, Subscription
 
 
 class CommentSerializer(serializers.ModelSerializer):

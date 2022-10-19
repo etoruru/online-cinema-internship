@@ -15,3 +15,16 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
+
+
+# app.conf.update(
+#     # task_queues={
+#     #     'video': {
+#     #         'exchange': 'video',
+#     #         'routing_key': 'video',
+#     #     },
+#     # },
+#     task_routes={
+#         'online_cinema.encoder.tasks.convert_video': {'queue': 'video'},
+#     },
+# )

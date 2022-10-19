@@ -1,5 +1,6 @@
-from cards.models import Card, Country, Episode, Genre, Membership, Season
 from rest_framework import serializers
+
+from online_cinema.cards.models import Card, Country, Episode, Genre, Membership, Season
 
 
 class GenreSerializer(serializers.ModelSerializer):

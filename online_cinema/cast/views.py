@@ -1,6 +1,7 @@
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
-from users.permissions import HasGroupPermission
+
+from online_cinema.users.permissions import HasGroupPermission
 
 from .models import Person
 from .serializers import PersonCreateSerializer, PersonListSerializer, PersonSerializer

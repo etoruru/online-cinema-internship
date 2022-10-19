@@ -76,17 +76,18 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "drf_spectacular",
+    "django_filters",
+    "silk",
+    "ffmpeg",
 ]
 
 LOCAL_APPS = [
-    "online_cinema.users",
-    "cast.apps.CastConfig",
-    "cards.apps.CardsConfig",
-    "encoder.apps.EncoderConfig",
-    "comments.apps.CommentsConfig",
-    "silk",
-    "django_filters",
     # Your stuff: custom apps go here
+    "online_cinema.users",
+    "online_cinema.cards",
+    "online_cinema.encoder",
+    "online_cinema.cast",
+    "online_cinema.comments",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

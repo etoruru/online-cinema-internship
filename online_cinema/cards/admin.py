@@ -1,5 +1,6 @@
-from cards.models import Card, Country, Episode, Genre, Membership, Season
 from django.contrib import admin
+
+from .models import Card, Country, Episode, Genre, Membership, Season
 
 # Register your models here.
 admin.site.register(Card)

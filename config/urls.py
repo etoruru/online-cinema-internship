@@ -18,10 +18,10 @@ urlpatterns = [
     path("users/", include("online_cinema.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-    path("", include("cards.urls")),
-    path("", include("cast.urls")),
-    path("", include("comments.urls")),
-    path("", include("encoder.urls")),
+    path("", include("online_cinema.cards.urls")),
+    path("", include("online_cinema.cast.urls")),
+    path("", include("online_cinema.comments.urls")),
+    path("", include("online_cinema.encoder.urls")),
     path("api-auth/", include("rest_framework.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

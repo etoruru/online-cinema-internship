@@ -1,6 +1,10 @@
+import os
+
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
-from users.permissions import HasGroupPermission
+
+from config.settings import base
+from online_cinema.users.permissions import HasGroupPermission
 
 from .models import Trailer, Video
 from .serializers import (
@@ -28,7 +32,10 @@ class VideoViewSet(viewsets.ModelViewSet):
     filterset_fields = ("status", "created_by", "item", "resolution", "created_at")
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save(
+            created_by=self.request.user,
+            filepath=os.path.join(base.ROOT_DIR, "online_cinema/videofiles/"),
+        )
 
     def get_serializer_class(self):
         if self.action == "list":

@@ -39,3 +39,7 @@ pytest-django==4.5.2  # https://github.com/pytest-dev/pytest-django
 django-silk==5.0.1  # https://github.com/jazzband/django-silk
 django-filter==22.1 # https://github.com/carltongibson/django-filter
 drf-extensions==0.7.1 # https://github.com/chibisov/drf-extensions
+
+# FFmpeg
+# ------------------------------------------------------------------------------
+ffmpeg-python==0.2.0 # https://github.com/kkroening/ffmpeg-python
