@@ -15,6 +15,7 @@ class VideoSerializer(serializers.ModelSerializer):
             "id",
             "filename",
             "filepath",
+            # "videofile"
             "created_at",
             "status",
             "resolution",
@@ -35,13 +36,14 @@ class VideoCreateSerializer(VideoSerializer):
     def create(self, validated_data):
         video = Video.objects.create(**validated_data)
         convert_video.apply_async(
-            args=[video.filename, video.filepath],
+            args=[validated_data.get("filepath")],
         )
         return video
 
     class Meta(VideoSerializer.Meta):
         fields = [
             "filename",
+            # "videofile"
             "resolution",
             "item",
         ]

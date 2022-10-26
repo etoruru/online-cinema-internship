@@ -1,4 +1,5 @@
 import os
+import uuid
 
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
@@ -31,11 +32,15 @@ class VideoViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ("status", "created_by", "item", "resolution", "created_at")
 
+    def _make_directories(self):
+        uid = str(uuid.uuid4())
+        first_dir, _ = uid.split("-", maxsplit=1)
+        filepath = os.path.join(base.MEDIA_ROOT, f"videofiles/{first_dir}/{uid}")
+        os.makedirs(filepath)
+        return filepath
+
     def perform_create(self, serializer):
-        serializer.save(
-            created_by=self.request.user,
-            filepath=os.path.join(base.ROOT_DIR, "online_cinema/videofiles/"),
-        )
+        serializer.save(created_by=self.request.user, filepath=self._make_directories())
 
     def get_serializer_class(self):
         if self.action == "list":
