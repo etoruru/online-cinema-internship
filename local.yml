@@ -85,7 +85,3 @@ services:
     ports:
       - "5555:5555"
     command: /start-flower
-
-  ffmpeg:
-    image: jrottenberg/ffmpeg
-    container_name: online_cinema_local_ffmpeg
