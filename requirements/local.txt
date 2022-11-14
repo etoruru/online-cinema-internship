@@ -42,4 +42,4 @@ drf-extensions==0.7.1 # https://github.com/chibisov/drf-extensions
 
 # FFmpeg
 # ------------------------------------------------------------------------------
-ffmpeg-python==0.2.0 # https://github.com/kkroening/ffmpeg-python
+# ffmpeg-python==0.2.0 # https://github.com/kkroening/ffmpeg-python

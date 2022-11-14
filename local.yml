@@ -16,7 +16,7 @@ services:
       - postgres
       - redis
     volumes:
-      - .:/app:z
+      - .:/app
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
@@ -24,6 +24,7 @@ services:
       - "8000:8000"
     command: /start
     user: 1000:1000
+    tty: True
 
   postgres:
     build:

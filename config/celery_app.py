@@ -17,14 +17,17 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
 
-# app.conf.update(
-#     # task_queues={
-#     #     'video': {
-#     #         'exchange': 'video',
-#     #         'routing_key': 'video',
-#     #     },
-#     # },
-#     task_routes={
-#         'online_cinema.encoder.tasks.convert_video': {'queue': 'video'},
-#     },
-# )
+app.conf.update(
+    task_queues={
+        "video": {
+            "exchange": "video",
+            "routing_key": "video",
+        },
+    },
+    task_routes={
+        "online_cinema.encoder.tasks.convert_video_to_hls": {
+            "queue": "video",
+            "routing_key": "online_cinema.encoder.tasks.convert_video_to_hls",
+        },
+    },
+)
