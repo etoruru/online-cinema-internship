@@ -26,5 +26,5 @@ class Membership(models.Model):
         "cast.Person", on_delete=models.CASCADE, related_name="card_to_person"
     )
     item = models.ForeignKey(
-        "Card", on_delete=models.PROTECT, related_name="card_to_person"
+        "Card", on_delete=models.CASCADE, related_name="card_to_person"
     )
