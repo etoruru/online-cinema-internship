@@ -48,7 +48,6 @@ class CommentViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
 class HistoryViewSet(viewsets.ModelViewSet):
     queryset = History.objects.select_related("user", "episode")
-    serializer_class = HistorySerializer
     permission_classes = [IsAuthenticated]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ("user", "episode")
@@ -71,7 +70,6 @@ class HistoryViewSet(viewsets.ModelViewSet):
 
 class BookmarkViewSet(viewsets.ModelViewSet):
     queryset = Bookmark.objects.select_related("user", "card")
-    serializer_class = BookmarkSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ("user", "card")
@@ -94,7 +92,6 @@ class BookmarkViewSet(viewsets.ModelViewSet):
 
 class SubscriptionViewSet(viewsets.ModelViewSet):
     queryset = Subscription.objects.select_related("user")
-    serializer_class = SubSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = "expired_date"

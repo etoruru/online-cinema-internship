@@ -9,7 +9,6 @@ from .serializers import PersonCreateSerializer, PersonListSerializer, PersonSer
 
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
-    serializer_class = PersonSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["admin"],
