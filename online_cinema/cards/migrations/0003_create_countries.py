@@ -19,7 +19,7 @@ def create_country(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cards', '0006_auto_20220919_0832'),
+        ('cards', '0002_create_genres'),
     ]
 
     operations = [

@@ -1,3 +1,4 @@
+
 from django.db import migrations
 import json
 import os
@@ -19,7 +20,7 @@ def create_genre(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cards', '0008_auto_20221004_0950'),
+        ('cards', '0001_initial'),
     ]
 
     operations = [
