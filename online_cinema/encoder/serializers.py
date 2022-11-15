@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from online_cinema.encoder.tasks import convert_video
+from online_cinema.encoder.tasks import convert_video_to_hls
 
-from .models import Trailer, Video
+from .models import ConvertTask, Video
 
 
 class VideoSerializer(serializers.ModelSerializer):
@@ -13,12 +13,10 @@ class VideoSerializer(serializers.ModelSerializer):
         model = Video
         fields = [
             "id",
-            "filename",
-            "filepath",
-            # "videofile"
+            "source_file_path",
             "created_at",
             "status",
-            "resolution",
+            "file_format",
             "created_by",
             "item",
         ]
@@ -35,37 +33,22 @@ class VideoCreateSerializer(VideoSerializer):
 
     def create(self, validated_data):
         video = Video.objects.create(**validated_data)
-        convert_video.apply_async(
-            args=[validated_data.get("filepath")],
+        convert_video_to_hls.apply_async(
+            args=[video.pk, video.source_file_path], queue="video"
         )
         return video
 
     class Meta(VideoSerializer.Meta):
         fields = [
-            "filename",
-            # "videofile"
-            "resolution",
+            "source_file_path",
+            "file_format",
             "item",
         ]
 
 
-class TrailerSerializer(serializers.ModelSerializer):
-    card = serializers.ReadOnlyField(source="trailers")
-    video = VideoSerializer(many=True, read_only=True)
+class ConvertTaskSerializer(serializers.ModelSerializer):
+    video = serializers.ReadOnlyField(source="video.id")
 
     class Meta:
-        model = Trailer
-        fields = ["id", "card", "video"]
-
-
-class TrailerListSerializer(VideoSerializer):
-    class Meta(VideoSerializer.Meta):
-        fields = ["id"]
-
-
-class TrailerCreateSerializer(VideoSerializer):
-    card = None
-    video = None
-
-    class Meta(VideoSerializer.Meta):
-        fields = ["card", "video"]
+        model = ConvertTask
+        fields = ["id", "output", "file_format", "video"]
