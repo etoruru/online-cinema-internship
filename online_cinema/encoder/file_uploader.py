@@ -10,7 +10,7 @@ logger = get_task_logger(__name__)
 
 
 @celery_app.task()
-def file_upload():
+def file_upload(input_task):
     client = Minio(
         endpoint="minio:9000",
         access_key="minio",
@@ -18,16 +18,16 @@ def file_upload():
         secure=False,
     )
 
-    found = client.bucket_exists(base.BUSKET_NAME)
+    found = client.bucket_exists(base.BUCKET_NAME)
     if not found:
-        client.make_bucket(base.BUSKET_NAME)
+        client.make_bucket(base.BUSCET_NAME)
 
     fake_input_path = base.STATIC_ROOT
     source_path = os.path.join(fake_input_path, "wlg.mp4")
 
     _, name = os.path.split(source_path)
     client.fput_object(
-        base.BUSKET_NAME,
+        base.BUCKET_NAME,
         name,
         source_path,
     )

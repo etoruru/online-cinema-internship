@@ -22,7 +22,7 @@ logger = get_task_logger(__name__)
 
 
 def update_video_inf(self, retval, task_id, args, kwargs):
-    video_id, convert_task_id = args
+    video_id, convert_task_id, *_ = args
     video = Video.objects.get(pk=video_id)
     video.status = "RD"
     video.item.season.card.is_available = True
@@ -45,6 +45,8 @@ def convert_video_to_hls(video_id, task_id, filename):
         aws_access_key_id=base.AWS_ACCESS_KEY,
         aws_secret_access_key=base.AWS_SECRET_KEY,
     )
+    # fake filename for demonstration
+    filename = "wlg.mp4"
     name = os.path.basename(filename)
 
     video = ffmpeg_streaming.input(s3, bucket_name=base.BUCKET_NAME, key=filename)

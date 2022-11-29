@@ -34,7 +34,7 @@ class VideoCreateSerializer(VideoSerializer):
 
     def create(self, validated_data):
         video = Video.objects.create(**validated_data)
-        file_upload.apply_async()
+        file_upload.apply_async(args=[video.source_file_path])
         return video
 
     class Meta(VideoSerializer.Meta):
