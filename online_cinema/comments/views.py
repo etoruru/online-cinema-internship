@@ -94,7 +94,7 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
     queryset = Subscription.objects.select_related("user")
     permission_classes = [IsAuthenticated]
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = "expired_date"
+    filterset_fields = ("expired_date",)
 
     def get_queryset(self):
         user = self.request.user
