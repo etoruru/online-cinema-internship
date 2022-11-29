@@ -3,6 +3,7 @@ version: '3'
 volumes:
   online_cinema_local_postgres_data: {}
   online_cinema_local_postgres_data_backups: {}
+  s3: {}
 
 services:
   django: &django
@@ -86,3 +87,16 @@ services:
     ports:
       - "5555:5555"
     command: /start-flower
+
+  minio:
+    image: minio/minio:latest
+    container_name: online_cinema_local_minio
+    volumes:
+      - s3:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniostorage
+    command: minio server /data --console-address :9001

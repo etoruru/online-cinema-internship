@@ -168,9 +168,9 @@ STATICFILES_FINDERS = [
 # MEDIA
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
-MEDIA_ROOT = str(APPS_DIR / "media")
+MEDIA_ROOT = str(APPS_DIR / "online-cinema")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
-MEDIA_URL = "/media/"
+MEDIA_URL = "http://127.0.0.1:9000/online-cinema/"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
@@ -286,7 +286,7 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_TIME_LIMIT = 5 * 60
 # # https://docs.celeryq.dev/en/stable/userguide/configuration.html#task-soft-time-limit
 # # TODO: set to whatever value is adequate in your circumstances
-CELERY_TASK_SOFT_TIME_LIMIT = 60
+CELERY_TASK_SOFT_TIME_LIMIT = 5 * 60
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#beat-scheduler
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # django-allauth
@@ -338,3 +338,8 @@ SPECTACULAR_SETTINGS = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+# MINIO
+BUCKET_NAME = "online-cinema"
+
+AWS_ACCESS_KEY = "rP98CC82jw5pKTax"
+AWS_SECRET_KEY = "q1TkmHouQxhxQFeEI5Nyg4I0WqlvfNTg"

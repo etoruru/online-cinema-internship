@@ -23,11 +23,19 @@ app.conf.update(
             "exchange": "video",
             "routing_key": "video",
         },
+        "upload": {
+            "exchange": "upload",
+            "routing_key": "upload",
+        },
     },
     task_routes={
         "online_cinema.encoder.tasks.convert_video_to_hls": {
             "queue": "video",
             "routing_key": "online_cinema.encoder.tasks.convert_video_to_hls",
+        },
+        "online_cinema.encoder.file_uploader.file_upload": {
+            "queue": "upload",
+            "routing_key": "online_cinema.encoder.file_uploader.file_upload",
         },
     },
 )
