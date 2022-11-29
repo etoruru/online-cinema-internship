@@ -2,6 +2,7 @@ import factory
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from online_cinema.cast.tests.test_views import PersonFactory
 from online_cinema.utils.test_api import ApiTestCaseWithUser
 
 from .factories import (
@@ -23,10 +24,12 @@ class CountryTestCase(ApiTestCaseWithUser):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_403_unauthorized_user(self):
+    def test_401_unauthorized_user(self):
         self.client.force_authenticate(user=None)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED, response.data
+        )
 
 
 class CardTestCase(ApiTestCaseWithUser):
@@ -34,9 +37,10 @@ class CardTestCase(ApiTestCaseWithUser):
     def setUpTestData(cls):
         super().setUpTestData()
         CardFactory.create_batch(5)
+        PersonFactory.create_batch(3)
         cls.country = CountryFactory.create()
         cls.genre = GenreFactory.create()
-        cls.url = reverse("cards:card-list")
+        cls.url = reverse("cards:cards-list")
 
     def test_200_authorized(self):
         response = self.client.get(self.url)
@@ -52,38 +56,44 @@ class CardTestCase(ApiTestCaseWithUser):
             dict,
             FACTORY_CLASS=CardFactory,
             country=self.country.pk,
+            cast=[{"character": "Captain", "person": 1}],
             genres=[self.genre.pk],
-            cast=[{"character": "Captain", "person": 3}],
         )
         response = self.client.post(self.url, new_card)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
 
-    def test_403_create_card(self):
+    def test_401_create_card(self):
         new_card = factory.build(
             dict,
             FACTORY_CLASS=CardFactory,
             country=self.country.pk,
             genres=[self.genre.pk],
-            cast=[{"character": "Captain", "person": 3}],
+            # cast=[{"character": "Captain", "person": 3}],
         )
         self.client.force_authenticate(user=None)
         response = self.client.post(self.url, new_card)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED, response.data
+        )
 
     def test_204_delete_card(self):
         card = CardFactory()
-        url = reverse("cards:card-detail", args=[card.pk])
+        url = reverse("cards:cards-detail", args=[card.pk])
         response = self.client.delete(url)
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
 
-    def test_403_delete_card(self):
+    def test_401_delete_card(self):
         card = CardFactory()
-        url = reverse("cards:card-detail", args=[card.pk])
+        url = reverse("cards:cards-detail", args=[card.pk])
         self.client.force_authenticate(user=None)
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED, response.data
+        )
 
 
 class SeasonTestCase(ApiTestCaseWithUser):
@@ -165,9 +175,11 @@ class EpisodeTestCase(ApiTestCaseWithUser):
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
 
-    def test_403_delete_episode(self):
+    def test_401_delete_episode(self):
         episode = EpisodeFactory()
         url = reverse("cards:episode-detail", args=[episode.pk])
         self.client.force_authenticate(user=None)
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED, response.data
+        )

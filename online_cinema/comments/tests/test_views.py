@@ -1,9 +1,9 @@
 import factory
 from rest_framework import status
 from rest_framework.reverse import reverse
-from utils.test_api import ApiTestCaseWithUser
 
 from online_cinema.cards.tests.factories import CardFactory, EpisodeFactory
+from online_cinema.utils.test_api import ApiTestCaseWithUser
 
 from .factories import BookmarkFactory, CommentFactory, HistoryFactory, SubsFactory
 
@@ -57,7 +57,7 @@ class BookmarkTestCase(ApiTestCaseWithUser):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.card = CardFactory.create()
-        BookmarkFactory.create_batch(5)
+        BookmarkFactory.create_batch(10)
         cls.url = reverse("comments:bookmark-list")
 
     def test_200_authorized_user(self):
@@ -85,18 +85,21 @@ class BookmarkTestCase(ApiTestCaseWithUser):
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
 
-    def test_403_forbidden_delete_bookmark(self):
+    def test_401_forbidden_delete_bookmark(self):
         bookmark = BookmarkFactory()
         url = reverse("comments:bookmark-detail", args=[bookmark.pk])
+        self.client.force_authenticate(user=None)
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED, response.data
+        )
 
 
 class HistoryTestCase(ApiTestCaseWithUser):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        HistoryFactory.create_batch(5)
+        HistoryFactory.create_batch(10)
         cls.episode = EpisodeFactory.create()
         cls.url = reverse("comments:history-list")
 
@@ -118,11 +121,14 @@ class HistoryTestCase(ApiTestCaseWithUser):
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
 
-    def test_403_forbidden_delete_history(self):
+    def test_401_forbidden_delete_history(self):
         history = HistoryFactory()
         url = reverse("comments:history-detail", args=[history.pk])
+        self.client.force_authenticate(user=None)
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED, response.data
+        )
 
     def test_201_create_history(self):
         new_history = factory.build(
@@ -136,7 +142,7 @@ class SubscriptionTestCase(ApiTestCaseWithUser):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        SubsFactory.create_batch(5)
+        SubsFactory.create_batch(10)
         cls.url = reverse("comments:subscription-list")
 
     def test_200_authorized_user(self):
@@ -153,11 +159,14 @@ class SubscriptionTestCase(ApiTestCaseWithUser):
         response = self.client.post(self.url, new_sub)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-    def test_403_delete_sub(self):
+    def test_401_delete_sub(self):
         sub = SubsFactory()
         url = reverse("comments:subscription-detail", args=[sub.pk])
+        self.client.force_authenticate(user=None)
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED, response.data
+        )
 
     def test_204_delete_sub(self):
         sub = SubsFactory()
