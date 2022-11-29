@@ -5,6 +5,7 @@ from online_cinema.users.permissions import HasGroupPermission
 
 from .models import ConvertTask, Video
 from .serializers import (
+    ConvertTaskCreateSerializer,
     ConvertTaskSerializer,
     VideoCreateSerializer,
     VideoListSerializer,
@@ -13,12 +14,12 @@ from .serializers import (
 
 
 class VideoViewSet(viewsets.ModelViewSet):
-    queryset = Video.objects.all()
+    queryset = Video.objects.select_related("item")
     permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["moderator", "admin"],
-        "list": ["moderator", "admin"],
-        "retrieve": ["moderator", "admin"],
+        "list": ["viewer", "moderator", "admin"],
+        "retrieve": ["viewer", "moderator", "admin"],
         "partial_update": ["moderator", "admin"],
         "destroy": ["moderator", "admin"],
     }
@@ -36,14 +37,23 @@ class VideoViewSet(viewsets.ModelViewSet):
         return VideoSerializer
 
 
-class ConvertTaskViewSet(viewsets.ReadOnlyModelViewSet):
+class ConvertTaskViewSet(viewsets.ModelViewSet):
     queryset = ConvertTask.objects.select_related("video")
-    serializer_class = ConvertTaskSerializer
     permission_classes = [HasGroupPermission]
     permission_groups = {
         "create": ["moderator", "admin"],
-        "list": ["moderator", "admin"],
-        "retrieve": ["moderator", "admin"],
+        "list": ["viewer", "moderator", "admin"],
+        "retrieve": ["viewer", "moderator", "admin"],
         "partial_update": ["moderator", "admin"],
         "destroy": ["moderator", "admin"],
     }
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("video", "created_by")
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return ConvertTaskCreateSerializer
+        return ConvertTaskSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from online_cinema.encoder.file_uploader import file_upload
 from online_cinema.encoder.tasks import convert_video_to_hls
 
 from .models import ConvertTask, Video
@@ -33,9 +34,7 @@ class VideoCreateSerializer(VideoSerializer):
 
     def create(self, validated_data):
         video = Video.objects.create(**validated_data)
-        convert_video_to_hls.apply_async(
-            args=[video.pk, video.source_file_path], queue="video"
-        )
+        file_upload.apply_async()
         return video
 
     class Meta(VideoSerializer.Meta):
@@ -51,4 +50,20 @@ class ConvertTaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConvertTask
-        fields = ["id", "output", "file_format", "video"]
+        fields = ["id", "output", "video"]
+
+
+class ConvertTaskCreateSerializer(ConvertTaskSerializer):
+    video = None
+
+    def create(self, validated_data):
+        task = ConvertTask.objects.create(**validated_data)
+        video = validated_data.get("video")
+        if video.file_format.lower() == "hls":
+            convert_video_to_hls.apply_async(
+                args=[video.pk, task.pk, video.source_file_path], queue="video"
+            )
+        return task
+
+    class Meta(ConvertTaskSerializer.Meta):
+        fields = ["video"]
