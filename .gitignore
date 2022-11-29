@@ -332,5 +332,5 @@ online_cinema/media/
 .envs/*
 !.envs/.local/
 
-# Temporary folder for videofiles
-online_cinema/videofiles
+wlg.mp4
+minio/
